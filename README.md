@@ -2,10 +2,13 @@
 
 API ổn định KQXS miền Nam cho **n8n → Fanpage Phước Danh**.
 
-- Nguồn: `https://vesophuocdanh.vn/api/xsmn/live`
-- Host: Vercel
-- Owner data/API: DanhSteve
-- Consumer: team n8n (chỉ gọi URL này, không scrape)
+| | |
+|---|---|
+| Nguồn | `https://vesophuocdanh.vn/api/xsmn/live` |
+| Production | https://kqxs-phuocdanh-api.vercel.app |
+| GitHub | https://github.com/DanhSteve/kqxs-phuocdanh-api |
+| Owner data/API | DanhSteve |
+| Consumer | team n8n |
 
 ## Endpoints
 
@@ -24,35 +27,19 @@ API ổn định KQXS miền Nam cho **n8n → Fanpage Phước Danh**.
   "date": "19/09/2026",
   "dateIso": "2026-09-19",
   "completed": true,
-  "stations": [...],
+  "stations": [],
   "caption": "...",
-  "imageUrl": "https://YOUR.vercel.app/api/kqxs/image?date=2026-09-19"
+  "imageUrl": "https://kqxs-phuocdanh-api.vercel.app/api/kqxs/image?date=2026-09-19"
 }
 ```
 
-- Chỉ đăng Fanpage khi `completed === true` (đủ Giải Đặc Biệt mọi đài).
-- Đăng **ảnh**: Facebook Graph `POST /{page-id}/photos` với `url = imageUrl` + `caption`.
+- Chỉ đăng khi `completed === true`.
+- Đăng ảnh: Facebook `POST /{page-id}/photos` với `url = imageUrl` + `caption`.
 
-## Đổi URL cho team n8n
+## Tài liệu bàn giao
 
-Thay:
-
-```text
-https://vesophuocdanh.vn/api/ket-qua-hom-nay   ❌ 404
-```
-
-Bằng:
-
-```text
-https://YOUR.vercel.app/api/kqxs/today         ✅
-```
-
-Test demo:
-
-```text
-https://YOUR.vercel.app/api/kqxs/today?date=2026-09-19
-https://YOUR.vercel.app/api/kqxs/image?date=2026-09-19
-```
+- [HANDOFF_N8N.md](./HANDOFF_N8N.md) — hướng dẫn team n8n đầy đủ
+- [MESSENGER_N8N.md](./MESSENGER_N8N.md) — đoạn chat copy gửi team
 
 ## Local
 
@@ -64,7 +51,7 @@ npm run dev
 ## Deploy
 
 ```bash
-npx vercel --prod
+npx vercel --prod --yes
 ```
 
 Hotline: 091.949.4566 – 0987.494.565 · https://vesophuocdanh.vn
