@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+.next
+out
+dist
+
+# Env / secrets
+.env
+.env*.local
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+
+# Logs
+*.log
+npm-debug.log*
+
+build_out.txt
