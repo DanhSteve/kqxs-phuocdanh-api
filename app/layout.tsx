@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Phước Danh · n8n Console",
+  title: "Phước Danh · Bảng điều khiển đăng bài",
   description:
-    "Console thao tác gắn n8n — copy URL, kiểm JSON/ảnh KQXS trước khi đăng Fanpage",
+    "Sao chép đường dẫn, kiểm tra kết quả và ảnh bảng trước khi n8n đăng Fanpage",
 };
 
 export default function RootLayout({

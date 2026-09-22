@@ -36,9 +36,9 @@ function toast(msg: string) {
 async function copyText(text: string) {
   try {
     await navigator.clipboard.writeText(text);
-    toast("Đã copy");
+    toast("Đã sao chép");
   } catch {
-    toast("Copy thất bại — chọn và Ctrl+C");
+    toast("Không sao chép được — hãy chọn rồi Ctrl+C");
   }
 }
 
@@ -52,7 +52,6 @@ export default function N8nConsole() {
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
-
 
   const todayUrl = useMemo(() => {
     const q = dateIso ? `?date=${dateIso}` : "";
@@ -76,12 +75,12 @@ export default function N8nConsole() {
       const q = iso ? `?date=${iso}` : "";
       const res = await fetch(`/api/kqxs/today${q}`, { cache: "no-store" });
       const json = (await res.json()) as TodayPayload;
-      if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      if (!res.ok) throw new Error(json.error || `Lỗi máy chủ ${res.status}`);
       setData(json);
       if (json.dateIso) setDateIso(json.dateIso);
     } catch (e) {
       setData(null);
-      setError(e instanceof Error ? e.message : "Lỗi tải API");
+      setError(e instanceof Error ? e.message : "Không tải được dữ liệu");
     } finally {
       setLoading(false);
     }
@@ -92,67 +91,67 @@ export default function N8nConsole() {
   }, [load]);
 
   const badge = error
-    ? { cls: "badge badge--err", text: "Lỗi API" }
+    ? { cls: "badge badge--err", text: "Lỗi kết nối" }
     : loading
       ? { cls: "badge badge--wait", text: "Đang tải…" }
       : data?.completed
-        ? { cls: "badge badge--ok", text: "Đủ GĐB — có thể đăng" }
-        : { cls: "badge badge--wait", text: "Chưa đủ GĐB" };
+        ? { cls: "badge badge--ok", text: "Đủ giải đặc biệt — có thể đăng" }
+        : { cls: "badge badge--wait", text: "Chưa đủ giải đặc biệt" };
 
   return (
     <div className="shell">
       <header className="top">
         <div className="brand">
           <h1 className="brand__name">
-            Phước <span>Danh</span> · n8n Console
+            Phước <span>Danh</span> · Bảng điều khiển đăng bài
           </h1>
           <p className="brand__sub">
-            Chỉ thao tác gắn workflow — copy URL, kiểm JSON/ảnh, xem trạng thái đăng.
+            Dùng để gắn vào n8n: sao chép đường dẫn, kiểm tra kết quả và ảnh trước khi đăng Fanpage.
           </p>
         </div>
         <div className="ext-links">
           <a className="btn btn--ghost btn--sm" href="https://vesophuocdanh.vn" target="_blank" rel="noopener">
-            Website
+            Trang web
           </a>
           <a className="btn btn--ghost btn--sm" href={HANDOFF_URL} target="_blank" rel="noopener">
-            HANDOFF_N8N.md
+            Hướng dẫn team
           </a>
         </div>
       </header>
 
       <section className="panel">
-        <h2 className="panel__title">1. URL cho node Fetch</h2>
+        <h2 className="panel__title">1. Đường dẫn lấy kết quả (dán vào n8n)</h2>
         <p className="panel__hint">
-          Thay URL 404 cũ bằng URL Production. Test demo dùng ngày đã có đủ giải ĐB.
+          Thay đường dẫn cũ bị lỗi bằng đường dẫn chính thức. Khi thử đăng demo, dùng ngày đã có đủ giải đặc biệt.
         </p>
 
         <div className="row">
           <div className="field">
-            <div className="field__label">Production (Active sau khi test)</div>
+            <div className="field__label">Đường dẫn chính (dùng khi chạy thật)</div>
             <div className="field__bar">
               <div className="url-box url">{liveUrl}</div>
               <button type="button" className="btn btn--gold btn--sm" onClick={() => copyText(liveUrl)}>
-                Copy
+                Sao chép
               </button>
             </div>
           </div>
 
           <div className="field">
-            <div className="field__label">Test demo</div>
+            <div className="field__label">Đường dẫn thử nghiệm</div>
             <div className="field__bar">
               <div className="url-box url">{demoUrl}</div>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => copyText(demoUrl)}>
-                Copy
+                Sao chép
               </button>
             </div>
           </div>
 
           <div className="field">
-            <div className="field__label">Ảnh demo (nếu cần dán tay)</div>
+            <div className="field__label">Ảnh thử nghiệm (khi cần dán tay)</div>
             <div className="field__bar">
               <div className="url-box url">{demoImageUrl}</div>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => copyText(demoImageUrl)}>
-                Copy
+                Sao chép
               </button>
             </div>
           </div>
@@ -162,7 +161,8 @@ export default function N8nConsole() {
       <section className="panel">
         <h2 className="panel__title">2. Kiểm tra trước khi đăng</h2>
         <p className="panel__hint">
-          n8n chỉ đăng khi <code>completed === true</code>. Dùng caption + imageUrl từ JSON.
+          n8n chỉ đăng khi trường <code>completed</code> = đúng (đã đủ giải đặc biệt). Nội dung bài nằm ở{" "}
+          <code>caption</code>, đường dẫn ảnh ở <code>imageUrl</code>.
         </p>
 
         <div className="status-line">
@@ -185,14 +185,14 @@ export default function N8nConsole() {
               disabled={loading}
               onClick={() => load(dateIso || undefined)}
             >
-              Tải
+              Tải lại
             </button>
           </div>
         </div>
 
         <div className="actions">
           <button type="button" className="btn btn--gold btn--sm" disabled={loading} onClick={() => load()}>
-            Live hôm nay
+            Kết quả hôm nay
           </button>
           <button
             type="button"
@@ -203,7 +203,7 @@ export default function N8nConsole() {
               void load(DEMO_DATE);
             }}
           >
-            Mẫu {DEMO_DATE}
+            Mẫu ngày 19/09/2026
           </button>
           <button
             type="button"
@@ -211,7 +211,7 @@ export default function N8nConsole() {
             disabled={!data?.caption}
             onClick={() => data?.caption && copyText(data.caption)}
           >
-            Copy caption
+            Sao chép nội dung bài
           </button>
           <button
             type="button"
@@ -219,20 +219,20 @@ export default function N8nConsole() {
             disabled={!imageUrl}
             onClick={() => copyText(imageUrl)}
           >
-            Copy imageUrl
+            Sao chép đường dẫn ảnh
           </button>
           <a className="btn btn--ghost btn--sm" href={todayUrl} target="_blank" rel="noopener">
-            Mở JSON
+            Xem dữ liệu
           </a>
           <a className="btn btn--ghost btn--sm" href={imageUrl} target="_blank" rel="noopener">
-            Mở ảnh
+            Xem ảnh bảng
           </a>
         </div>
 
         <div className="preview" style={{ marginTop: "1rem" }}>
           <div className="preview__box">
             <div className="field__label" style={{ marginBottom: 8 }}>
-              JSON rút gọn
+              Dữ liệu rút gọn
             </div>
             <pre>
               {error
@@ -264,44 +264,45 @@ export default function N8nConsole() {
           </div>
           <div className="preview__box">
             <div className="field__label" style={{ marginBottom: 8 }}>
-              Ảnh bảng Fanpage
+              Ảnh bảng đăng Fanpage
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img key={imageUrl} src={imageUrl} alt="Bảng KQXS XSMN" />
+            <img key={imageUrl} src={imageUrl} alt="Bảng kết quả xổ số miền Nam" />
           </div>
         </div>
       </section>
 
       <section className="panel">
-        <h2 className="panel__title">3. Checklist n8n</h2>
+        <h2 className="panel__title">3. Việc team n8n cần làm</h2>
         <ol className="steps">
           <li>
-            Fetch = <strong>Production URL</strong> (mục 1)
+            Ô lấy dữ liệu: dán <strong>đường dẫn chính</strong> ở mục 1
           </li>
           <li>
-            Code: <code>if (!data.completed) return [];</code>
+            Chỉ đăng khi đã đủ giải đặc biệt: <code>if (!data.completed) return [];</code>
           </li>
           <li>
-            Facebook <code>/photos</code>: <code>url=imageUrl</code>, <code>caption=caption</code>
+            Đăng ảnh lên Fanpage: dùng đường dẫn ảnh (<code>imageUrl</code>) và nội dung bài (
+            <code>caption</code>)
           </li>
           <li>
-            Test bằng URL demo → Execute → kiểm Fanpage → Active cron 16:15–16:35
+            Thử với đường dẫn thử nghiệm → chạy 1 lần → kiểm Fanpage → bật lịch 16:15–16:35
           </li>
         </ol>
         <div className="actions">
           <a className="btn btn--gold" href={HANDOFF_URL} target="_blank" rel="noopener">
-            Mở hướng dẫn đầy đủ
+            Đọc hướng dẫn đầy đủ
           </a>
         </div>
       </section>
 
       <footer className="foot">
-        Hotline 091.949.4566 – 0987.494.565 ·{" "}
+        Điện thoại: 091.949.4566 – 0987.494.565 ·{" "}
         <a href="https://vesophuocdanh.vn" target="_blank" rel="noopener">
           vesophuocdanh.vn
         </a>
         {" · "}
-        Repo{" "}
+        Kho mã{" "}
         <a
           href="https://github.com/DanhSteve/kqxs-phuocdanh-api"
           target="_blank"

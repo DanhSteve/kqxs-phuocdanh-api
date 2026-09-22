@@ -1,26 +1,26 @@
-# kqxs-phuocdanh-api
+# Máy chủ kết quả xổ số — Phước Danh
 
-API ổn định KQXS miền Nam cho **n8n → Fanpage Phước Danh**.
+Cung cấp dữ liệu ổn định để **n8n đăng bài lên Fanpage Phước Danh**.
 
 | | |
 |---|---|
-| Nguồn | `https://vesophuocdanh.vn/api/xsmn/live` |
-| Production | https://kqxs-phuocdanh-api.vercel.app |
-| GitHub | https://github.com/DanhSteve/kqxs-phuocdanh-api |
-| Owner data/API | DanhSteve |
-| Consumer | team n8n |
+| Nguồn dữ liệu | `https://vesophuocdanh.vn/api/xsmn/live` |
+| Máy chủ chính | https://kqxs-phuocdanh-api.vercel.app |
+| Kho mã | https://github.com/DanhSteve/kqxs-phuocdanh-api |
+| Phụ trách dữ liệu | DanhSteve |
+| Phụ trách đăng bài | team n8n |
 
-## Endpoints
+## Đường dẫn
 
-| URL | Mô tả |
+| Đường dẫn | Mô tả |
 |---|---|
-| `GET /api/health` | Health check |
-| `GET /api/kqxs/today` | JSON hôm nay + `caption` + `imageUrl` |
-| `GET /api/kqxs/today?date=YYYY-MM-DD` | JSON theo ngày (demo) |
-| `GET /api/kqxs/image` | PNG bảng KQXS |
-| `GET /api/kqxs/image?date=YYYY-MM-DD` | PNG theo ngày |
+| `/api/health` | Kiểm tra máy chủ còn sống |
+| `/api/kqxs/today` | Kết quả hôm nay + nội dung bài + đường dẫn ảnh |
+| `/api/kqxs/today?date=YYYY-MM-DD` | Kết quả theo ngày (dùng khi thử) |
+| `/api/kqxs/image` | Ảnh bảng kết quả |
+| `/api/kqxs/image?date=YYYY-MM-DD` | Ảnh bảng theo ngày |
 
-### Field quan trọng cho n8n
+### Trường quan trọng cho n8n
 
 ```json
 {
@@ -33,25 +33,25 @@ API ổn định KQXS miền Nam cho **n8n → Fanpage Phước Danh**.
 }
 ```
 
-- Chỉ đăng khi `completed === true`.
-- Đăng ảnh: Facebook `POST /{page-id}/photos` với `url = imageUrl` + `caption`.
+- Chỉ đăng khi `completed` = đúng (đã đủ giải đặc biệt).
+- Đăng ảnh Fanpage: dùng `imageUrl` (đường dẫn ảnh) + `caption` (nội dung bài).
 
 ## Tài liệu bàn giao
 
-- [HANDOFF_N8N.md](./HANDOFF_N8N.md) — hướng dẫn team n8n đầy đủ
-- [MESSENGER_N8N.md](./MESSENGER_N8N.md) — đoạn chat copy gửi team
+- [HANDOFF_N8N.md](./HANDOFF_N8N.md) — hướng dẫn team n8n (dễ hiểu)
+- [MESSENGER_N8N.md](./MESSENGER_N8N.md) — tin nhắn ngắn gửi team
 
-## Local
+## Chạy máy local
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Deploy
+## Đưa lên máy chủ
 
 ```bash
 npx vercel --prod --yes
 ```
 
-Hotline: 091.949.4566 – 0987.494.565 · https://vesophuocdanh.vn
+Điện thoại: 091.949.4566 – 0987.494.565 · https://vesophuocdanh.vn

@@ -1,30 +1,28 @@
-# Tin nhắn gửi team n8n (copy nguyên)
+# Tin nhắn gửi team n8n (sao chép nguyên)
 
 ---
 
-API KQXS Phước Danh đã sẵn trên Vercel. Không cần scrape — chỉ đổi URL Fetch.
+Đường dẫn lấy kết quả xổ số Phước Danh đã sẵn. Team không cần lấy dữ liệu từ web — chỉ đổi địa chỉ trong n8n rồi đăng Fanpage.
 
-**Đổi URL node Fetch:**
+**Đổi đường dẫn lấy dữ liệu:**
 
-❌ Cũ (404): `https://vesophuocdanh.vn/api/ket-qua-hom-nay`  
-✅ Mới: `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today`
+Sai (lỗi): `https://vesophuocdanh.vn/api/ket-qua-hom-nay`  
+Đúng: `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today`
 
-**Logic:** chỉ đăng khi `completed === true`.  
-Dùng `caption` + `imageUrl` từ JSON.  
-Facebook đăng **ảnh**: `POST /{page-id}/photos` với `url=imageUrl`, `caption=caption`.
+**Quy tắc:** chỉ đăng khi `completed` = đúng (đã đủ giải đặc biệt).  
+Dùng `caption` = nội dung bài, `imageUrl` = đường dẫn ảnh bảng.  
+Đăng **ảnh** lên Fanpage (không chỉ chữ).
 
-**Test demo:**  
+**Thử trước:**  
 `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19`  
-→ Execute → kiểm Fanpage có ảnh bảng → bỏ `?date=` → Active.
+→ chạy thử → kiểm Fanpage có ảnh bảng → bỏ `?date=` → bật lịch.
 
-**Cron:** `15-35/2 16 * * *` · TZ `Asia/Ho_Chi_Minh`
+**Lịch:** mỗi 2 phút từ 16:15–16:35 · múi giờ Việt Nam.
 
-**Link:**  
-- JSON: https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today  
-- Ảnh: https://kqxs-phuocdanh-api.vercel.app/api/kqxs/image  
-- Repo: https://github.com/DanhSteve/kqxs-phuocdanh-api  
-- Chi tiết: file `HANDOFF_N8N.md` trong repo
+**Bảng điều khiển:** https://kqxs-phuocdanh-api.vercel.app  
+**Hướng dẫn đủ:** file `HANDOFF_N8N.md` trong repo  
+https://github.com/DanhSteve/kqxs-phuocdanh-api
 
-Hỏi API → DanhSteve.
+Hỏi đường dẫn / dữ liệu → DanhSteve.
 
 ---
