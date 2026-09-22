@@ -1,99 +1,84 @@
 # Hướng dẫn team n8n — Đăng kết quả xổ số lên Fanpage Phước Danh
 
-Đường dẫn lấy dữ liệu đã sẵn. Team n8n **không cần lấy dữ liệu từ web** — chỉ **dán form câu lệnh** bên dưới vào n8n rồi bật chạy tự động.
+Đường dẫn lấy dữ liệu đã sẵn. Team **không cần lấy dữ liệu từ web**.
 
-Bảng điều khiển (sao chép đường dẫn, xem thử): https://kqxs-phuocdanh-api.vercel.app
+Cách nhanh nhất: **copy khối câu lệnh bên dưới → dán vào chat n8n** → để n8n tự dựng workflow → gắn mã Fanpage → bật chạy.
 
----
-
-## Form câu lệnh — quăng lên n8n là chạy
-
-Ghép **4 bước** theo thứ tự. Team chỉ cần điền `PAGE_ID` và mã truy cập Fanpage.
-
-### Bước A — Lịch chạy (Schedule Trigger)
-
-| Ô | Dán vào |
-|---|---|
-| Biểu thức lịch (Cron) | `15-35/2 16 * * *` |
-| Múi giờ | `Asia/Ho_Chi_Minh` |
-
-→ Chạy mỗi 2 phút trong khung **16:15–16:35** giờ Việt Nam.
+Bảng điều khiển: https://kqxs-phuocdanh-api.vercel.app
 
 ---
 
-### Bước B — Lấy kết quả (HTTP Request)
+## CÂU LỆNH DÁN VÀO CHAT n8n (copy nguyên khối)
 
-| Ô | Dán vào |
-|---|---|
-| Method | `GET` |
-| URL (chạy thật) | `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today` |
-| URL (thử 1 lần) | `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19` |
+> Mở chat trong n8n → dán **toàn bộ** đoạn dưới → Enter. Sau đó team chỉ gắn `PAGE_ID` + mã truy cập Fanpage rồi Active.
 
-**Đường dẫn cũ (sai, bỏ):** `https://vesophuocdanh.vn/api/ket-qua-hom-nay`
+```
+Tạo giúp tôi một workflow n8n tên: "Phước Danh – KQXS MN → Fanpage".
 
----
+Mục tiêu: mỗi chiều tự lấy kết quả xổ số miền Nam rồi đăng ẢNH bảng kết quả lên Fanpage Facebook Phước Danh (kèm caption). Không scrape web — chỉ gọi API có sẵn.
 
-### Bước C — Lọc + chống đăng trùng (Code node)
+=== NODE 1: Schedule Trigger ===
+- Cron: 15-35/2 16 * * *
+- Timezone: Asia/Ho_Chi_Minh
+(Chạy mỗi 2 phút trong khung 16:15–16:35 giờ Việt Nam)
 
-Mode: **Run Once for All Items**. Dán nguyên khối:
+=== NODE 2: HTTP Request – Lấy kết quả ===
+- Method: GET
+- URL chạy thật:
+  https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
+- URL thử 1 lần (dùng trước khi Active):
+  https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19
+- Response là JSON có các field:
+  completed (boolean), caption (string), imageUrl (string), date (string), stations (array)
 
-```js
+=== NODE 3: Code – Chỉ đăng khi đủ giải + chống trùng ===
+Mode: Run Once for All Items. Code:
+
 const data = $input.first().json;
-
-// Chưa đủ giải đặc biệt → dừng, chờ lần chạy sau
-if (!data.completed) {
-  return [];
-}
-
-// Chống đăng trùng trong cùng một ngày
+if (!data.completed) return [];
 const store = $getWorkflowStaticData('global');
 const key = `XSMN_${data.date}`;
-if (store[key]) {
-  return [];
-}
+if (store[key]) return [];
 store[key] = true;
+return [{
+  json: {
+    date: data.date,
+    dateIso: data.dateIso,
+    completed: data.completed,
+    caption: data.caption,
+    imageUrl: data.imageUrl,
+    station_count: data.station_count,
+    stations: data.stations
+  }
+}];
 
-return [
-  {
-    json: {
-      date: data.date,
-      dateIso: data.dateIso,
-      completed: data.completed,
-      caption: data.caption,
-      imageUrl: data.imageUrl,
-      station_count: data.station_count,
-      stations: data.stations,
-    },
-  },
-];
+=== NODE 4: HTTP Request – Đăng ảnh Fanpage ===
+- Method: POST
+- URL: https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos
+  (để chỗ PAGE_ID cho tôi điền ID Fanpage)
+- Body (form / x-www-form-urlencoded):
+  url = {{ $json.imageUrl }}
+  caption = {{ $json.caption }}
+  access_token = {{PAGE_TOKEN}}
+  (để chỗ PAGE_TOKEN cho tôi điền Page Access Token)
+
+=== Quy tắc ===
+1. Chỉ đăng khi completed === true
+2. Mỗi ngày chỉ đăng 1 lần (dedup bằng khóa XSMN_${date})
+3. Đăng ẢNH qua /photos (không đăng text-only /feed)
+4. Sau khi tạo xong: nối 4 node theo thứ tự Schedule → GET today → Code → POST photos
+5. Tôi sẽ test bằng URL có ?date=2026-09-19 trước, rồi đổi lại URL không có ?date rồi Active
+
+Hãy tạo đầy đủ 4 node, nối dây, điền sẵn URL và code như trên.
 ```
 
 ---
 
-### Bước D — Đăng ảnh lên Fanpage (HTTP Request)
+## Sau khi chat n8n dựng xong — team làm 3 việc
 
-| Ô | Dán vào |
-|---|---|
-| Method | `POST` |
-| URL | `https://graph.facebook.com/v19.0/{{ $env.FB_PAGE_ID }}/photos` |
-| Content type | Form-Data / Body (x-www-form-urlencoded cũng được) |
-
-**Thân gửi (Body) — từng dòng:**
-
-| Tên tham số | Giá trị (dán nguyên) |
-|---|---|
-| `url` | `={{ $json.imageUrl }}` |
-| `caption` | `={{ $json.caption }}` |
-| `access_token` | `={{ $env.FB_PAGE_TOKEN }}` |
-
-> Nếu team không dùng biến môi trường: thay `FB_PAGE_ID` bằng ID trang, `FB_PAGE_TOKEN` bằng mã truy cập trang Fanpage (team tự giữ bí mật).
-
-**Công thức rút gọn (Expression):**
-
-```
-URL ảnh:     {{ $json.imageUrl }}
-Nội dung bài: {{ $json.caption }}
-```
+1. Điền **ID Fanpage** và **mã truy cập trang** vào node đăng ảnh  
+2. Chạy thử với URL có `?date=2026-09-19` → kiểm Fanpage có ảnh bảng chưa  
+3. Đổi lại URL **không** có `?date=` → bật **Active**
 
 ---
 
@@ -109,12 +94,22 @@ Nội dung bài: {{ $json.caption }}
 
 ---
 
-## Thứ tự bật chạy (khuyến nghị)
+## Phụ lục — nếu gắn tay từng ô (không dùng chat)
 
-1. Dán **URL thử** ở bước B → bấm **chạy thử** một lần  
-2. Kiểm Fanpage đã có **ảnh bảng kết quả** chưa  
-3. Đổi lại **URL chạy thật** (bỏ `?date=...`)  
-4. Bật lịch (Active)
+### A. Lịch
+`15-35/2 16 * * *` · `Asia/Ho_Chi_Minh`
+
+### B. Lấy kết quả
+`GET https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today`
+
+### C. Code
+Dùng đúng khối Code trong câu lệnh chat ở trên.
+
+### D. Đăng Fanpage
+`POST https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos`  
+`url` = `={{ $json.imageUrl }}` · `caption` = `={{ $json.caption }}` · `access_token` = mã trang
+
+**Đường dẫn cũ (sai, bỏ):** `https://vesophuocdanh.vn/api/ket-qua-hom-nay`
 
 ---
 
@@ -122,13 +117,12 @@ Nội dung bài: {{ $json.caption }}
 
 | Mục đích | Đường dẫn |
 |---|---|
-| Kiểm tra máy chủ sống | https://kqxs-phuocdanh-api.vercel.app/api/health |
+| Máy chủ sống | https://kqxs-phuocdanh-api.vercel.app/api/health |
 | Kết quả hôm nay | https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today |
-| Kết quả mẫu (thử đăng) | https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19 |
+| Thử đăng | https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19 |
 | Ảnh mẫu | https://kqxs-phuocdanh-api.vercel.app/api/kqxs/image?date=2026-09-19 |
-| Kho mã nguồn | https://github.com/DanhSteve/kqxs-phuocdanh-api |
+| Kho mã | https://github.com/DanhSteve/kqxs-phuocdanh-api |
 
-Hỏi dữ liệu / đường dẫn máy chủ → **DanhSteve**  
-Hỏi cấu hình n8n / mã Facebook → **team n8n**
+Hỏi dữ liệu / đường dẫn → **DanhSteve** · Hỏi mã Facebook → **team n8n**
 
-Điện thoại thương hiệu: 091.949.4566 – 0987.494.565 · https://vesophuocdanh.vn
+Điện thoại: 091.949.4566 – 0987.494.565 · https://vesophuocdanh.vn

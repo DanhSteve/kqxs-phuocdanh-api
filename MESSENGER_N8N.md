@@ -2,36 +2,15 @@
 
 ---
 
-Anh ơi, form câu lệnh n8n đã sẵn — **quăng lên n8n rồi bật tự chạy** là được. Chi tiết đầy đủ trong file `HANDOFF_N8N.md`.
+Anh ơi, **câu lệnh dán vào chat n8n** nằm trong file này (copy nguyên khối):  
+https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N.md
 
-**1) Lịch:** `15-35/2 16 * * *` · múi giờ `Asia/Ho_Chi_Minh`
+Cách làm: mở **chat n8n** → dán khối **「CÂU LỆNH DÁN VÀO CHAT n8n」** → để n8n tự dựng workflow → anh gắn ID trang + mã Fanpage → thử 1 lần với `?date=2026-09-19` → bỏ `?date` → Active.
 
-**2) Lấy dữ liệu (GET):**
-```
-https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
-```
-(Thử 1 lần: thêm `?date=2026-09-19`)
+API lấy kết quả (không scrape web):
+`https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today`
 
-**3) Code node (dán nguyên):**
-```js
-const data = $input.first().json;
-if (!data.completed) return [];
-const store = $getWorkflowStaticData('global');
-const key = `XSMN_${data.date}`;
-if (store[key]) return [];
-store[key] = true;
-return [{ json: { caption: data.caption, imageUrl: data.imageUrl, date: data.date } }];
-```
-
-**4) Đăng ảnh Fanpage (POST):**
-`https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos`
-- `url` = `={{ $json.imageUrl }}`
-- `caption` = `={{ $json.caption }}`
-- `access_token` = mã trang Fanpage (anh tự gắn)
-
-**Bảng điều khiển:** https://kqxs-phuocdanh-api.vercel.app  
-**Hướng dẫn đủ:** https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N.md
-
+Bảng điều khiển: https://kqxs-phuocdanh-api.vercel.app  
 Hỏi đường dẫn / dữ liệu → DanhSteve.
 
 ---
