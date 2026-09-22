@@ -19,3 +19,6 @@ Thumbs.db
 npm-debug.log*
 
 build_out.txt
+
+gh-token
+.gh-token
