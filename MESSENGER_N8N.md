@@ -2,26 +2,35 @@
 
 ---
 
-Đường dẫn lấy kết quả xổ số Phước Danh đã sẵn. Team không cần lấy dữ liệu từ web — chỉ đổi địa chỉ trong n8n rồi đăng Fanpage.
+Anh ơi, form câu lệnh n8n đã sẵn — **quăng lên n8n rồi bật tự chạy** là được. Chi tiết đầy đủ trong file `HANDOFF_N8N.md`.
 
-**Đổi đường dẫn lấy dữ liệu:**
+**1) Lịch:** `15-35/2 16 * * *` · múi giờ `Asia/Ho_Chi_Minh`
 
-Sai (lỗi): `https://vesophuocdanh.vn/api/ket-qua-hom-nay`  
-Đúng: `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today`
+**2) Lấy dữ liệu (GET):**
+```
+https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
+```
+(Thử 1 lần: thêm `?date=2026-09-19`)
 
-**Quy tắc:** chỉ đăng khi `completed` = đúng (đã đủ giải đặc biệt).  
-Dùng `caption` = nội dung bài, `imageUrl` = đường dẫn ảnh bảng.  
-Đăng **ảnh** lên Fanpage (không chỉ chữ).
+**3) Code node (dán nguyên):**
+```js
+const data = $input.first().json;
+if (!data.completed) return [];
+const store = $getWorkflowStaticData('global');
+const key = `XSMN_${data.date}`;
+if (store[key]) return [];
+store[key] = true;
+return [{ json: { caption: data.caption, imageUrl: data.imageUrl, date: data.date } }];
+```
 
-**Thử trước:**  
-`https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19`  
-→ chạy thử → kiểm Fanpage có ảnh bảng → bỏ `?date=` → bật lịch.
-
-**Lịch:** mỗi 2 phút từ 16:15–16:35 · múi giờ Việt Nam.
+**4) Đăng ảnh Fanpage (POST):**
+`https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos`
+- `url` = `={{ $json.imageUrl }}`
+- `caption` = `={{ $json.caption }}`
+- `access_token` = mã trang Fanpage (anh tự gắn)
 
 **Bảng điều khiển:** https://kqxs-phuocdanh-api.vercel.app  
-**Hướng dẫn đủ:** file `HANDOFF_N8N.md` trong repo  
-https://github.com/DanhSteve/kqxs-phuocdanh-api
+**Hướng dẫn đủ:** https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N.md
 
 Hỏi đường dẫn / dữ liệu → DanhSteve.
 

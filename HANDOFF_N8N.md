@@ -1,39 +1,103 @@
 # Hướng dẫn team n8n — Đăng kết quả xổ số lên Fanpage Phước Danh
 
-Đường dẫn lấy dữ liệu đã sẵn trên máy chủ. Team n8n **không cần lấy dữ liệu từ web**, chỉ cần gọi đường dẫn bên dưới rồi đăng Fanpage.
+Đường dẫn lấy dữ liệu đã sẵn. Team n8n **không cần lấy dữ liệu từ web** — chỉ **dán form câu lệnh** bên dưới vào n8n rồi bật chạy tự động.
 
 Bảng điều khiển (sao chép đường dẫn, xem thử): https://kqxs-phuocdanh-api.vercel.app
 
 ---
 
-## Bước 1 — Đổi đường dẫn lấy dữ liệu (bắt buộc)
+## Form câu lệnh — quăng lên n8n là chạy
 
-Trong n8n, tìm bước **lấy dữ liệu từ web** (ô nhập địa chỉ).
+Ghép **4 bước** theo thứ tự. Team chỉ cần điền `PAGE_ID` và mã truy cập Fanpage.
 
-**Đường dẫn cũ (sai, bị lỗi):**
-```
-https://vesophuocdanh.vn/api/ket-qua-hom-nay
-```
+### Bước A — Lịch chạy (Schedule Trigger)
 
-**Đường dẫn mới (đúng):**
-```
-https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
-```
+| Ô | Dán vào |
+|---|---|
+| Biểu thức lịch (Cron) | `15-35/2 16 * * *` |
+| Múi giờ | `Asia/Ho_Chi_Minh` |
 
-Cách gọi: lấy dữ liệu (GET). Máy chủ trả về một gói thông tin có cấu trúc (các trường bên dưới).
+→ Chạy mỗi 2 phút trong khung **16:15–16:35** giờ Việt Nam.
 
 ---
 
-## Bước 2 — Chỉ đăng khi đã đủ kết quả
+### Bước B — Lấy kết quả (HTTP Request)
 
-Trong bước xử lý mã, thêm điều kiện:
+| Ô | Dán vào |
+|---|---|
+| Method | `GET` |
+| URL (chạy thật) | `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today` |
+| URL (thử 1 lần) | `https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19` |
+
+**Đường dẫn cũ (sai, bỏ):** `https://vesophuocdanh.vn/api/ket-qua-hom-nay`
+
+---
+
+### Bước C — Lọc + chống đăng trùng (Code node)
+
+Mode: **Run Once for All Items**. Dán nguyên khối:
 
 ```js
 const data = $input.first().json;
-if (!data.completed) return []; // chưa đủ giải đặc biệt → chờ lần chạy sau
+
+// Chưa đủ giải đặc biệt → dừng, chờ lần chạy sau
+if (!data.completed) {
+  return [];
+}
+
+// Chống đăng trùng trong cùng một ngày
+const store = $getWorkflowStaticData('global');
+const key = `XSMN_${data.date}`;
+if (store[key]) {
+  return [];
+}
+store[key] = true;
+
+return [
+  {
+    json: {
+      date: data.date,
+      dateIso: data.dateIso,
+      completed: data.completed,
+      caption: data.caption,
+      imageUrl: data.imageUrl,
+      station_count: data.station_count,
+      stations: data.stations,
+    },
+  },
+];
 ```
 
-Ý nghĩa các trường trong dữ liệu trả về:
+---
+
+### Bước D — Đăng ảnh lên Fanpage (HTTP Request)
+
+| Ô | Dán vào |
+|---|---|
+| Method | `POST` |
+| URL | `https://graph.facebook.com/v19.0/{{ $env.FB_PAGE_ID }}/photos` |
+| Content type | Form-Data / Body (x-www-form-urlencoded cũng được) |
+
+**Thân gửi (Body) — từng dòng:**
+
+| Tên tham số | Giá trị (dán nguyên) |
+|---|---|
+| `url` | `={{ $json.imageUrl }}` |
+| `caption` | `={{ $json.caption }}` |
+| `access_token` | `={{ $env.FB_PAGE_TOKEN }}` |
+
+> Nếu team không dùng biến môi trường: thay `FB_PAGE_ID` bằng ID trang, `FB_PAGE_TOKEN` bằng mã truy cập trang Fanpage (team tự giữ bí mật).
+
+**Công thức rút gọn (Expression):**
+
+```
+URL ảnh:     {{ $json.imageUrl }}
+Nội dung bài: {{ $json.caption }}
+```
+
+---
+
+## Ý nghĩa các trường máy chủ trả về
 
 | Tên trường | Ý nghĩa tiếng Việt |
 |---|---|
@@ -43,42 +107,14 @@ if (!data.completed) return []; // chưa đủ giải đặc biệt → chờ l�
 | `date` | Ngày (ví dụ `19/09/2026`) |
 | `stations` | Danh sách từng đài và số trúng |
 
-Gợi ý chống đăng trùng trong ngày: khóa `XSMN_${data.date}`
-
 ---
 
-## Bước 3 — Đăng ảnh bảng lên Fanpage
+## Thứ tự bật chạy (khuyến nghị)
 
-Gọi Facebook:
-
-`POST https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos`
-
-| Tham số | Giá trị |
-|---|---|
-| `url` | `={{ $json.imageUrl }}` (đường dẫn ảnh) |
-| `caption` | `={{ $json.caption }}` (nội dung bài) |
-| `access_token` | Mã truy cập trang Fanpage (team tự cấu hình) |
-
----
-
-## Bước 4 — Thử đăng 1 lần trước khi bật lịch
-
-1. Tạm thời đổi đường dẫn lấy dữ liệu thành:
-   ```
-   https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today?date=2026-09-19
-   ```
-2. Bấm **chạy thử** (Execute) một lần
-3. Kiểm tra Fanpage đã có **ảnh bảng kết quả** chưa
-4. Đổi lại đường dẫn **không** có `?date=...` (đường dẫn chính)
-5. Bật lịch chạy tự động
-
----
-
-## Bước 5 — Lịch chạy đề xuất
-
-- Biểu thức lịch: `15-35/2 16 * * *` (mỗi 2 phút trong khung 16:15–16:35)
-- Múi giờ: `Asia/Ho_Chi_Minh`
-- Mỗi ngày chỉ đăng **một** bài (chống trùng)
+1. Dán **URL thử** ở bước B → bấm **chạy thử** một lần  
+2. Kiểm Fanpage đã có **ảnh bảng kết quả** chưa  
+3. Đổi lại **URL chạy thật** (bỏ `?date=...`)  
+4. Bật lịch (Active)
 
 ---
 
