@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 import type { Station } from "./xsmn";
 import { shortStationName } from "./xsmn";
@@ -19,6 +21,8 @@ const C = {
   border: "#1a1a1a",
   dotted: "#888888",
 };
+
+const FONT = "Be Vietnam Pro";
 
 type RowDef = {
   code: string;
@@ -68,10 +72,45 @@ function splitDate(date: string): { dayMonth: string; year: string } {
   return { dayMonth: date || "—", year: "" };
 }
 
-export function renderKqxsImage(opts: {
+function loadFonts() {
+  const dir = join(process.cwd(), "public", "fonts");
+  const latin800 = readFileSync(join(dir, "latin-800.ttf"));
+  const viet800 = readFileSync(join(dir, "viet-800.ttf"));
+  const latin700i = readFileSync(join(dir, "latin-700-italic.ttf"));
+  const viet700i = readFileSync(join(dir, "viet-700-italic.ttf"));
+
+  return [
+    {
+      name: FONT,
+      data: latin800,
+      weight: 800 as const,
+      style: "normal" as const,
+    },
+    {
+      name: FONT,
+      data: viet800,
+      weight: 800 as const,
+      style: "normal" as const,
+    },
+    {
+      name: FONT,
+      data: latin700i,
+      weight: 700 as const,
+      style: "italic" as const,
+    },
+    {
+      name: FONT,
+      data: viet700i,
+      weight: 700 as const,
+      style: "italic" as const,
+    },
+  ];
+}
+
+export async function renderKqxsImage(opts: {
   date: string;
   stations: Station[];
-}): ImageResponse {
+}): Promise<ImageResponse> {
   const { date, stations } = opts;
   const n = Math.max(stations.length, 1);
   const labelW = 132;
@@ -79,6 +118,7 @@ export function renderKqxsImage(opts: {
   const width = labelW + colW * n + 40;
   const height = 1140;
   const { dayMonth, year } = splitDate(date);
+  const fonts = loadFonts();
 
   return new ImageResponse(
     (
@@ -90,7 +130,8 @@ export function renderKqxsImage(opts: {
           flexDirection: "column",
           background: C.white,
           padding: "18px 20px 16px",
-          fontFamily: "Arial, Helvetica, sans-serif",
+          fontFamily: FONT,
+          fontWeight: 800,
         }}
       >
         {/* HEADER */}
@@ -264,7 +305,6 @@ export function renderKqxsImage(opts: {
 
           return (
             <div key={row.code} style={{ display: "flex", width: "100%" }}>
-              {/* LABEL */}
               <div
                 style={{
                   display: "flex",
@@ -319,7 +359,6 @@ export function renderKqxsImage(opts: {
                   </div>
                 </div>
 
-                {/* Chữ đỏ G.4: một dòng nằm ngang rồi xoay -90° (đọc từ dưới lên) — đúng form mẫu */}
                 {row.note ? (
                   <div
                     style={{
@@ -339,7 +378,7 @@ export function renderKqxsImage(opts: {
                         display: "flex",
                         color: C.red,
                         fontSize: 12,
-                        fontWeight: 800,
+                        fontWeight: 700,
                         fontStyle: "italic",
                         whiteSpace: "nowrap",
                         transform: "rotate(-90deg)",
@@ -355,7 +394,6 @@ export function renderKqxsImage(opts: {
                 ) : null}
               </div>
 
-              {/* NUMBERS — tất cả in đậm */}
               {stations.map((s, si) => {
                 const val = vals[si];
                 const isMulti = Array.isArray(val);
@@ -402,7 +440,6 @@ export function renderKqxsImage(opts: {
           );
         })}
 
-        {/* FOOTER */}
         <div
           style={{
             display: "flex",
@@ -424,6 +461,7 @@ export function renderKqxsImage(opts: {
     {
       width,
       height,
+      fonts,
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
         "Access-Control-Allow-Origin": "*",

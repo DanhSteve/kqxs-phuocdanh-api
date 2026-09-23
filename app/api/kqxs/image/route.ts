@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { corsHeaders, fetchXsmn } from "@/lib/xsmn";
 import { renderKqxsImage } from "@/lib/render-image";
 
-export const runtime = "edge";
+/** Node runtime: đọc file font đậm từ public/fonts */
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function OPTIONS() {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return renderKqxsImage({
+    return await renderKqxsImage({
       date: payload.date,
       stations: payload.stations,
     });
