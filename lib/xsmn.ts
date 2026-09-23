@@ -39,6 +39,11 @@ export type KqxsPayload = {
   station_count: number;
   stations: Station[];
   caption: string;
+  /**
+   * Caption gắn bài Live Video sau khi tắt live (giữ VOD).
+   * Giữ nội dung thương hiệu — không dòng giải ĐB, không bảng live sổ.
+   */
+  captionAfterLive: string;
   /** Caption dạng bảng chữ cập nhật dần khi đang live */
   liveCaption: string;
   /** Trang HTML vòng quay CSS thật + hiện từng chữ số */
@@ -144,6 +149,21 @@ export function buildCaption(date: string, stations: Station[]): string {
     `🔴 [CHÍNH THỨC] KQXS MIỀN NAM ${date} 🔴`,
     `⭐ Đại lý vé số PHƯỚC DANH`,
     `🏆 Giải ĐB: ${gdbLine}`,
+    `☎️ Hotline: ${HOTLINE}`,
+    `📍 ${ADDRESSES.join(" | ")}`,
+    `🌐 ${WEBSITE}`,
+  ].join("\n");
+}
+
+/**
+ * Nội dung bài viết gắn video Live đã quay (sau khi sổ xong).
+ * Theo góp ý: giữ nội dung — bỏ dòng giải ĐB + bỏ phần live sổ (số nằm trong video).
+ */
+export function buildCaptionAfterLive(date: string): string {
+  return [
+    `🔴 [CHÍNH THỨC] KQXS MIỀN NAM ${date} 🔴`,
+    `⭐ Đại lý vé số PHƯỚC DANH`,
+    `▶️ Xem lại video xổ trực tiếp bên trên`,
     `☎️ Hotline: ${HOTLINE}`,
     `📍 ${ADDRESSES.join(" | ")}`,
     `🌐 ${WEBSITE}`,
@@ -320,6 +340,7 @@ export async function fetchXsmn(dateIso?: string | null): Promise<{
       station_count: stations.length,
       stations,
       caption: buildCaption(date, stations),
+      captionAfterLive: buildCaptionAfterLive(date),
       liveCaption: buildLiveCaption(date, stations, stage),
       source: url,
       serverTime: raw.serverTime,

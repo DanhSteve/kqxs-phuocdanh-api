@@ -1,10 +1,18 @@
 # Chuẩn vàng — LIVE ngay trên tường Fanpage (Facebook Live Video)
 
-## Ý bạn muốn
+## Ý bạn muốn (+ góp ý anh Khoa)
 
 Bảng chữ **đang xổ realtime ngay trên Fanpage** (vòng quay thật, hiện từng chữ số) — **không** bắt khách bấm `/live`.  
-**Số nào vừa có trên API → Live trên tường FB hiện đúng số đó** (trễ ~1–3 giây vì `/live` poll 1.5s + encode).  
-Cuối cùng đăng bài **ảnh + caption** chuẩn.
+**Số nào vừa có trên API → Live trên tường FB hiện đúng số đó** (trễ ~1–3 giây vì `/live` poll 1.5s + encode).
+
+**Sau khi sổ hết số (góp ý Khoa):**
+
+1. **Để theo bài đăng** trên Fanpage (Live kết thúc → thành bài video trên tường).
+2. **Giữ nguyên video đã quay** (VOD) — không xóa, không cắt lại.
+3. **Nội dung chữ kèm bài:** giữ thương hiệu / hotline / địa chỉ — **không** ghi dòng giải ĐB, **không** dán bảng live đang sổ (số đã nằm trong video).
+
+→ Field API: `captionAfterLive` (không dòng ĐB, không bảng live).  
+→ Field `caption` (có dòng ĐB) chỉ dùng nếu team **đăng thêm** bài ảnh form riêng (tuỳ chọn).
 
 Luồng realtime từng số (không qua n8n từng lần):
 
@@ -14,7 +22,7 @@ API today có số mới  →  /live tự poll 1.5s hiện số + quay
                      →  Fanpage Live Video hiện đúng số đó
 ```
 
-n8n **không** sửa bài mỗi số — chỉ tạo Live lúc đầu + tắt Live + đăng ảnh khi `completed`.
+n8n **không** sửa bài mỗi số — chỉ tạo Live lúc đầu + tắt Live (giữ VOD) + cập nhật mô tả bài bằng `captionAfterLive`.
 
 ## Thực tế kỹ thuật
 
@@ -22,7 +30,7 @@ n8n **không** sửa bài mỗi số — chỉ tạo Live lúc đầu + tắt Li
 |---|---|---|
 | Sửa bài chữ mỗi 2s | Không quay CSS | Chỉ đổi chữ; khách thường phải F5 |
 | Link `/live` | Quay thật **ngoài** FB | Đã có sẵn — khách phải bấm link |
-| **Facebook Live Video (RTMPS)** | **Có** — đúng ý bạn | Bài “Đang phát trực tiếp” trên tường |
+| **Facebook Live Video (RTMPS)** | **Có** — đúng ý bạn | Bài “Đang phát trực tiếp” trên tường → sau đó giữ VOD |
 
 → Muốn **live trực tiếp trên Fanpage** = dùng **[Live Video API](https://developers.facebook.com/docs/live-video-api/)**: tạo `LiveVideo` → đẩy video RTMPS lên FB.
 
@@ -36,6 +44,7 @@ Vercel **không** giữ luồng video dài giờ → cần **máy encoder** (OBS
 
 ```
 16:13  n8n: POST /{PAGE_ID}/live_videos?status=LIVE_NOW
+         description ngắn (không bảng live, không ĐB)
          → nhận secure_stream_url + live_video_id
        Encoder: mở https://kqxs-phuocdanh-api.vercel.app/live
          (Browser Source) → stream RTMPS lên Fanpage
@@ -44,8 +53,11 @@ Vercel **không** giữ luồng video dài giờ → cần **máy encoder** (OBS
 16:15–35  /live tự poll API 1.5s (đã có) → số mới hiện dần
           Encoder tiếp tục phát
 
-completed  n8n: kết thúc LiveVideo
-           + POST /photos (imageUrl + caption) 1 lần
+completed  n8n:
+           1) end_live_video = true  → GIỮ video trên tường (VOD)
+           2) cập nhật description = captionAfterLive
+              (không dòng ĐB, không bảng live sổ)
+           3) (tuỳ chọn) POST /photos nếu team vẫn muốn ảnh form riêng
 ```
 
 Đã có sẵn nguồn hình: **`/live`** (CSS spin + từng chữ số).  
@@ -57,21 +69,32 @@ Phần còn thiếu: **n8n tạo Live + encoder đẩy RTMPS**.
 
 ```
 Tạo giúp tôi bộ workflow n8n chuẩn vàng tên:
-"Phước Danh – LIVE Video trên Fanpage + ảnh cuối"
+"Phước Danh – LIVE Video trên Fanpage (giữ VOD sau xổ)"
 
-===== Ý TƯỞNG (ĐÚNG ĐỦ Ý) =====
+===== Ý TƯỞNG (ĐÚNG ĐỦ Ý + GÓP Ý KHOA) =====
 1. LIVE VIDEO ngay trên tường Fanpage — khách thấy "Đang phát trực tiếp", KHÔNG bấm /live.
-2. REALTIME TỪNG SỐ: số nào API /today vừa có → trang /live hiện đúng số đó (quay + từng chữ số) → encoder đang stream → Fanpage Live hiện đúng số đó trong ~1–3 giây.
-3. n8n KHÔNG đẩy từng số lên FB. /live tự poll API mỗi 1.5s; OBS chỉ giữ luồng RTMPS liên tục.
-4. Đủ giải ĐB (completed=true) → tắt Live + đăng 1 bài ảnh bảng form + caption.
+2. REALTIME TỪNG SỐ: số nào API /today vừa có → /live hiện đúng số → encoder stream → Fanpage Live hiện đúng số (~1–3s).
+3. n8n KHÔNG đẩy từng số lên FB. /live tự poll 1.5s; OBS giữ RTMPS liên tục.
+4. SAU KHI SỔ HẾT (completed=true):
+   a) Tắt Live nhưng GIỮ NGUYÊN video đã quay trên tường (thành bài đăng VOD) — KHÔNG xóa video.
+   b) Cập nhật nội dung chữ kèm bài = captionAfterLive:
+      giữ thương hiệu / hotline / địa chỉ
+      KHÔNG dòng giải ĐB
+      KHÔNG bảng live đang sổ / liveCaption
+      (số đã nằm trong video giữ nguyên)
+   c) Đăng ảnh form riêng = TUỲ CHỌN (không bắt buộc nếu đã giữ VOD).
 
 Nguồn hình: https://kqxs-phuocdanh-api.vercel.app/live
 Encoder (OBS/ffmpeg): Browser Source = /live → đẩy RTMPS theo secure_stream_url.
-n8n: tạo LiveVideo → (tuỳ chọn báo encoder) → chờ completed → end live + /photos.
+n8n: tạo LiveVideo → (tuỳ chọn báo encoder) → chờ completed → end live (giữ VOD) → PATCH description = captionAfterLive.
 
 ===== API VERCEL (dữ liệu số) =====
 GET https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
-Fields: completed, stage, progressKey, caption, imageUrl, date, liveBoardUrl
+Fields quan trọng:
+  completed, stage, progressKey, date, liveBoardUrl, imageUrl
+  captionAfterLive  ← dùng sau khi tắt Live (không ĐB, không bảng live)
+  caption           ← chỉ nếu đăng thêm ảnh form (có dòng ĐB)
+  liveCaption       ← KHÔNG dùng cho bài Live Video sau xong
 Trang hình live: https://kqxs-phuocdanh-api.vercel.app/live
 
 ===== FACEBOOK LIVE VIDEO API =====
@@ -82,18 +105,25 @@ Body:
   status = LIVE_NOW
   title = KQXS Miền Nam LIVE – Phước Danh
   description = Đang xổ trực tiếp · Đại lý vé số Phước Danh · 0919.494.566
+    (NGẮN — không dán bảng live, không dòng ĐB)
   access_token = {{PAGE_TOKEN}}
 
 Response cần lấy:
   id              → live_video_id
   secure_stream_url → đưa vào OBS/ffmpeg (Server + Stream Key)
 
-Kết thúc live:
+Kết thúc live (GIỮ video trên tường):
 POST https://graph.facebook.com/v19.0/{{live_video_id}}
 Body:
   end_live_video = true
   access_token = {{PAGE_TOKEN}}
-(hoặc theo docs phiên bản hiện tại: cập nhật status kết thúc)
+→ Sau khi end, video vẫn còn trên Fanpage như bài đăng (VOD). Không gọi API xóa video.
+
+Cập nhật chữ kèm bài video (sau khi end):
+POST https://graph.facebook.com/v19.0/{{live_video_id}}
+Body:
+  description = {{ captionAfterLive }}
+  access_token = {{PAGE_TOKEN}}
 
 Quyền Page token: pages_manage_posts, pages_read_engagement
 (+ App Review Live Video API khi chạy production)
@@ -114,7 +144,7 @@ NODE A3 — HTTP POST tạo Live Video trên Fanpage
 - Send body:
   status = LIVE_NOW
   title = 🔴 KQXS Miền Nam đang xổ – Phước Danh {{ $json.date }}
-  description = Xem bảng kết quả trực tiếp trên Fanpage · Hotline 0919.494.566 · vesophuocdanh.vn
+  description = Đang xổ trực tiếp · Đại lý vé số Phước Danh · Hotline 0919.494.566 · vesophuocdanh.vn
   access_token = {{PAGE_TOKEN}}
 
 NODE A4 — Code lưu stream (Run Once for All Items)
@@ -124,9 +154,8 @@ const live = $input.first().json;
 const data = $('NODE A2').first().json; // đổi tên node cho khớp
 store.liveVideoId = live.id;
 store.secureStreamUrl = live.secure_stream_url;
-store.photoPosted = false;
+store.vodFinalized = false;
 store.liveDate = data.date || data.dateIso || '';
-// Tách server/key cho OBS nếu cần:
 const url = live.secure_stream_url || '';
 const marker = '/rtmp/';
 const idx = url.indexOf(marker);
@@ -148,7 +177,7 @@ NODE A5 — (Tuỳ chọn) Telegram / Email / Sticky output
 Gửi cho kỹ thuật: liveBoardUrl + rtmpServer + streamKey để bật OBS/ffmpeg ngay.
 
 Sticky A:
-"Sau A4 phải có encoder đang đẩy RTMPS trong < vài phút. Nguồn hình = /live."
+"Sau A4 phải có encoder đang đẩy RTMPS trong < vài phút. Nguồn hình = /live. Description lúc tạo = ngắn, không bảng live."
 
 ===== ENCODER (không nằm trong n8n — bắt buộc) =====
 
@@ -166,10 +195,10 @@ Cách tự động 100% (phase 2 — cần VPS, không chạy trên Vercel serve
 - Container ffmpeg/puppeteer mở /live → pipe RTMPS theo secure_stream_url
 - n8n A4 gọi webhook VPS { secureStreamUrl, liveBoardUrl } để tự Start
 
-===== WORKFLOW B — Theo dõi completed → tắt LIVE + đăng ảnh =====
+===== WORKFLOW B — Đủ ĐB → tắt LIVE (giữ VOD) + chữ captionAfterLive =====
 
 NODE B1 — Schedule mỗi 10–15 giây (16:15–16:40 giờ VN)
-(Không cần 2s cho workflow này — /live tự poll; B chỉ chờ đủ ĐB)
+(/live tự poll; B chỉ chờ đủ ĐB)
 
 NODE B2 — Code khung giờ 16:15–16:40 Asia/Ho_Chi_Minh
 ```js
@@ -181,53 +210,69 @@ return [{ json: { ok: true } }];
 
 NODE B3 — HTTP GET https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
 
-NODE B4 — Code chỉ tiếp khi completed && chưa đăng ảnh
+NODE B4 — Code chỉ tiếp khi completed && chưa finalize VOD
 ```js
 const data = $input.first().json;
 const store = $getWorkflowStaticData('global');
-if (!data.completed || store.photoPosted) return [];
+if (!data.completed || store.vodFinalized) return [];
 if (!store.liveVideoId) return [];
-return [{ json: { ...data, liveVideoId: store.liveVideoId } }];
+return [{
+  json: {
+    ...data,
+    liveVideoId: store.liveVideoId,
+    captionAfterLive: data.captionAfterLive
+  }
+}];
 ```
 
-NODE B5 — HTTP POST kết thúc Live Video
+NODE B5 — HTTP POST kết thúc Live Video (GIỮ video trên tường)
 - URL: https://graph.facebook.com/v19.0/{{ $json.liveVideoId }}
-- Body (theo docs phiên bản app đang dùng; thử lần lượt nếu cần):
+- Body:
   end_live_video = true
   access_token = {{PAGE_TOKEN}}
-Hoặc POST fields status phù hợp docs Live Video hiện tại.
+→ Video vẫn còn trên Fanpage như bài đăng. KHÔNG xóa.
 
-NODE B6 — HTTP POST đăng ảnh bảng form
+NODE B6 — HTTP POST cập nhật mô tả bài video
+- URL: https://graph.facebook.com/v19.0/{{ $json.liveVideoId }}
+- Body:
+  description = {{ $json.captionAfterLive }}
+  access_token = {{PAGE_TOKEN}}
+→ captionAfterLive = nội dung giữ thương hiệu, KHÔNG dòng ĐB, KHÔNG bảng live sổ.
+
+NODE B7 — (TUỲ CHỌN) HTTP POST đăng ảnh bảng form — chỉ nếu team vẫn muốn bài ảnh riêng
 - URL: https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos
 - Body:
   url = {{ $json.imageUrl }}
   caption = {{ $json.caption }}
   access_token = {{PAGE_TOKEN}}
+Mặc định chuẩn Khoa: BỎ NODE B7 — chỉ giữ VOD + captionAfterLive.
 
-NODE B7 — Code
+NODE B8 — Code
 ```js
 const store = $getWorkflowStaticData('global');
-store.photoPosted = true;
-return [{ json: { done: true } }];
+store.vodFinalized = true;
+return [{ json: { done: true, keptVod: true } }];
 ```
 
 Sticky B:
-"Đủ ĐB → tắt LIVE → đăng 1 ảnh form + caption. Không đăng ảnh lúc đang live."
+"Đủ ĐB → tắt LIVE → GIỮ video đã quay → description = captionAfterLive (không ĐB, không bảng live). Ảnh form = tuỳ chọn."
 
 ===== QUY TẮC =====
-1. Live trên tường Fanpage = Live Video RTMPS, không phải sửa bài chữ / không gửi link thay live.
-2. Hình live = /live (quay + từng chữ số). Số API có → /live hiện → stream → FB hiện đúng số đó.
-3. Encoder bắt buộc giữ RTMPS suốt giờ xổ (OBS hoặc VPS). Mất encoder = Fanpage không còn hình live.
-4. n8n không poll để sửa từng số trên FB; chỉ tạo live + kết thúc + ảnh cuối.
-5. Đủ ĐB → end live + 1 ảnh form. Không đăng ảnh lúc đang live.
-6. Để {{PAGE_ID}} {{PAGE_TOKEN}}.
-7. Kiểm Page ≥ 100 followers + quyền Live Video.
+1. Live trên tường Fanpage = Live Video RTMPS.
+2. Hình live = /live. Số API có → /live → stream → FB hiện đúng số đó.
+3. Encoder bắt buộc suốt giờ xổ.
+4. Sau xong: GIỮ nguyên video đã quay (VOD trên tường) — không xóa.
+5. Chữ kèm bài sau xong = captionAfterLive (không dòng ĐB, không live sổ).
+6. Không dùng liveCaption làm description sau khi xong.
+7. Ảnh form riêng = tuỳ chọn.
+8. Để {{PAGE_ID}} {{PAGE_TOKEN}}.
+9. Page ≥ 100 followers + quyền Live Video.
 
 ===== CHẠY THỬ =====
 1. Execute A → lấy secure_stream_url
-2. OBS Browser /live → Start Streaming → mở Fanpage thấy LIVE
-3. (Dev) giả lập số trên API hoặc đợi giờ xổ
-4. Khi completed → B tắt live + có bài ảnh
+2. OBS Browser /live → Start Streaming → Fanpage thấy LIVE
+3. Đợi/giả lập completed
+4. B: end live → video vẫn trên tường → description = captionAfterLive (không ĐB)
 
 Hãy tạo đủ node 2 workflow, sticky, để chỗ PAGE_ID/PAGE_TOKEN, ghi chú OBS tách Server/Key từ secure_stream_url.
 ```
@@ -239,8 +284,8 @@ Hãy tạo đủ node 2 workflow, sticky, để chỗ PAGE_ID/PAGE_TOKEN, ghi ch
 | Việc | Ai |
 |---|---|
 | `/live` quay + từng chữ số | **Đã có** |
-| API today / image / caption | **Đã có** |
-| Workflow n8n tạo/end Live + ảnh | Team n8n (lệnh trên) |
+| API today + `captionAfterLive` | **Đã có** |
+| Workflow n8n tạo/end Live + giữ VOD + captionAfterLive | Team n8n (lệnh trên) |
 | OBS hoặc VPS ffmpeg stream | Team kỹ thuật |
 | (Phase 2) Worker tự stream không cần OBS | DanhSteve — cần máy luôn bật, không phải Vercel |
 
