@@ -93,8 +93,20 @@ export function shortStationName(name: string): string {
     "TÂY NINH": "T.NINH",
     "AN GIANG": "A.GIANG",
     "BÌNH THUẬN": "B.THUẬN",
+    "BẾN TRE": "BẾN TRE",
+    "VŨNG TÀU": "V.TÀU",
+    "BÀ RỊA - VŨNG TÀU": "V.TÀU",
+    "BÀ RỊA VŨNG TÀU": "V.TÀU",
+    "BẠC LIÊU": "B.LIÊU",
+    "ĐỒNG THÁP": "Đ.THÁP",
+    "CÀ MAU": "CÀ MAU",
+    "SÓC TRĂNG": "S.TRĂNG",
+    "TRÀ VINH": "T.VINH",
+    "CẦN THƠ": "CẦN THƠ",
+    "ĐỒNG NAI": "Đ.NAI",
+    "BÌNH DƯƠNG": "B.DƯƠNG",
   };
-  return map[n] || n.slice(0, 8);
+  return map[n] || n.slice(0, 10);
 }
 
 function mapStation(item: RawStation): Station {

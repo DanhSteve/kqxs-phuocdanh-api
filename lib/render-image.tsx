@@ -2,16 +2,55 @@ import { ImageResponse } from "next/og";
 import type { Station } from "./xsmn";
 import { shortStationName } from "./xsmn";
 
-const ROWS: { label: string; key: keyof Station; kind: "red" | "num" | "multi" | "jackpot" }[] = [
-  { label: "100N", key: "g8", kind: "red" },
-  { label: "200N", key: "g7", kind: "num" },
-  { label: "400N", key: "g6", kind: "multi" },
-  { label: "1TR", key: "g5", kind: "num" },
-  { label: "3TR", key: "g4", kind: "multi" },
-  { label: "10TR", key: "g3", kind: "multi" },
-  { label: "15TR", key: "g2", kind: "num" },
-  { label: "30TR", key: "g1", kind: "num" },
-  { label: "2TỶ", key: "gdb", kind: "jackpot" },
+/** Form ảnh bảng Fanpage — bám mẫu Đại lý vé số Phước Danh */
+const COLORS = {
+  red: "#c41e1e",
+  redDark: "#a01818",
+  navy: "#1a3a7a",
+  navyDeep: "#0f2a5c",
+  beige: "#f0e6d2",
+  beigeDark: "#e8dcc4",
+  orange: "#f0a020",
+  yellow: "#fff3c4",
+  black: "#111111",
+  gray: "#6b7280",
+  blueText: "#1e40af",
+  white: "#ffffff",
+  border: "#222222",
+};
+
+type RowDef = {
+  code: string;
+  prize: string;
+  digits: string;
+  key: keyof Station;
+  kind: "red" | "num" | "multi" | "jackpot";
+  note?: boolean;
+};
+
+const ROWS: RowDef[] = [
+  { code: "G.8", prize: "100N", digits: "(2 số)", key: "g8", kind: "red" },
+  { code: "G.7", prize: "200N", digits: "(3 số)", key: "g7", kind: "num" },
+  { code: "G.6", prize: "400N", digits: "(4 số)", key: "g6", kind: "multi" },
+  { code: "G.5", prize: "1TR", digits: "(4 số)", key: "g5", kind: "num" },
+  {
+    code: "G.4",
+    prize: "3TR",
+    digits: "(5 số)",
+    key: "g4",
+    kind: "multi",
+    note: true,
+  },
+  { code: "G.3", prize: "10TR", digits: "(5 số)", key: "g3", kind: "multi" },
+  { code: "G.2", prize: "15TR", digits: "(5 số)", key: "g2", kind: "num" },
+  { code: "G.1", prize: "30TR", digits: "(5 số)", key: "g1", kind: "num" },
+  {
+    code: "ĐB",
+    prize: "2 TỶ",
+    digits: "(6 số)",
+    key: "gdb",
+    kind: "jackpot",
+  },
 ];
 
 function cellValue(station: Station, key: keyof Station): string | string[] {
@@ -20,14 +59,26 @@ function cellValue(station: Station, key: keyof Station): string | string[] {
   return v || "—";
 }
 
+function splitDate(date: string): { dayMonth: string; year: string } {
+  // "22/09/2026" → dayMonth 22/09, year 2026
+  const parts = String(date || "").split("/");
+  if (parts.length === 3) {
+    return { dayMonth: `${parts[0]}/${parts[1]}`, year: parts[2] };
+  }
+  return { dayMonth: date || "—", year: "" };
+}
+
 export function renderKqxsImage(opts: {
   date: string;
   stations: Station[];
 }): ImageResponse {
   const { date, stations } = opts;
   const n = Math.max(stations.length, 1);
-  const width = Math.min(1200, 220 + n * 180);
-  const height = 780;
+  const labelW = 118;
+  const colW = Math.max(150, Math.min(200, Math.floor((900 - labelW) / n)));
+  const width = labelW + colW * n + 48;
+  const height = 1100;
+  const { dayMonth, year } = splitDate(date);
 
   return new ImageResponse(
     (
@@ -37,55 +88,131 @@ export function renderKqxsImage(opts: {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "#ffffff",
-          padding: "28px 32px",
-          fontFamily: "sans-serif",
+          background: COLORS.white,
+          padding: "20px 22px 18px",
+          fontFamily: "Arial, sans-serif",
         }}
       >
+        {/* ===== HEADER ===== */}
         <div
           style={{
             display: "flex",
-            fontSize: 34,
-            fontWeight: 800,
-            color: "#1e3a8a",
-            marginBottom: 6,
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: 10,
           }}
         >
-          {`KẾT QUẢ XSMN NGÀY ${date}`}
-        </div>
-        <div style={{ display: "flex", fontSize: 16, color: "#6b7280", marginBottom: 14 }}>
-          Đại lý vé số PHƯỚC DANH · Hotline 0919494566 · Cập nhật từ 16:15
-        </div>
-        <div
-          style={{
-            display: "flex",
-            background: "#fef3c7",
-            border: "2px solid #facc15",
-            borderRadius: 8,
-            padding: "8px 14px",
-            color: "#15803d",
-            fontWeight: 700,
-            fontSize: 18,
-            marginBottom: 16,
-          }}
-        >
-          TRÚNG SỐ GỌI NGAY 0919494566
+          <div
+            style={{
+              display: "flex",
+              fontSize: 34,
+              fontWeight: 800,
+              color: COLORS.red,
+              letterSpacing: 1,
+            }}
+          >
+            ĐẠI LÝ VÉ SỐ PHƯỚC DANH
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 15,
+              fontWeight: 700,
+              color: COLORS.black,
+              marginTop: 4,
+            }}
+          >
+            137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 13,
+              fontStyle: "italic",
+              color: COLORS.gray,
+              marginTop: 2,
+            }}
+          >
+            XỔ SỐ MIỀN NAM
+          </div>
         </div>
 
-        {/* Header */}
+        {/* ===== DATE + HOTLINE BAR ===== */}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            marginBottom: 10,
+            border: `2px solid ${COLORS.navy}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: labelW,
+              background: COLORS.red,
+              color: COLORS.white,
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "8px 4px",
+            }}
+          >
+            <div style={{ display: "flex", fontSize: 28, fontWeight: 800 }}>
+              {dayMonth}
+            </div>
+            <div style={{ display: "flex", fontSize: 14, fontWeight: 600 }}>
+              {year}
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              background: COLORS.white,
+              padding: "8px 10px",
+              gap: 8,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                fontSize: 16,
+                fontWeight: 700,
+                color: COLORS.blueText,
+              }}
+            >
+              ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI
+            </div>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 22,
+                fontWeight: 800,
+                color: COLORS.red,
+              }}
+            >
+              0919.494.566
+            </div>
+          </div>
+        </div>
+
+        {/* ===== TABLE HEADER ===== */}
         <div style={{ display: "flex", width: "100%" }}>
           <div
             style={{
               display: "flex",
-              width: 90,
-              background: "#b91c1c",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 18,
+              width: labelW,
+              background: COLORS.beige,
+              color: COLORS.black,
+              fontWeight: 800,
+              fontSize: 16,
               alignItems: "center",
               justifyContent: "center",
               padding: "10px 4px",
-              border: "1px solid #374151",
+              border: `1px solid ${COLORS.border}`,
             }}
           >
             GIẢI
@@ -95,102 +222,154 @@ export function renderKqxsImage(opts: {
               key={s.code || s.name}
               style={{
                 display: "flex",
+                flexDirection: "column",
                 flex: 1,
-                background: "#b91c1c",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 18,
+                background: COLORS.navy,
+                color: COLORS.white,
                 alignItems: "center",
                 justifyContent: "center",
-                padding: "10px 4px",
-                border: "1px solid #374151",
+                padding: "8px 4px",
+                border: `1px solid ${COLORS.border}`,
               }}
             >
-              {shortStationName(s.name)}
+              <div style={{ display: "flex", fontSize: 18, fontWeight: 800 }}>
+                {shortStationName(s.name)}
+              </div>
+              <div style={{ display: "flex", fontSize: 12, fontWeight: 600, opacity: 0.95 }}>
+                {s.code || ""}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Codes */}
-        <div style={{ display: "flex", width: "100%" }}>
-          <div
-            style={{
-              display: "flex",
-              width: 90,
-              background: "#451a03",
-              color: "#fff",
-              fontSize: 12,
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "6px 4px",
-              border: "1px solid #374151",
-            }}
-          >
-            {date}
-          </div>
-          {stations.map((s) => (
-            <div
-              key={`c-${s.code}`}
-              style={{
-                display: "flex",
-                flex: 1,
-                background: "#fffbeb",
-                color: "#6b7280",
-                fontSize: 13,
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "6px 4px",
-                border: "1px solid #374151",
-              }}
-            >
-              {s.code || ""}
-            </div>
-          ))}
-        </div>
-
-        {ROWS.map((row, idx) => {
+        {/* ===== DATA ROWS ===== */}
+        {ROWS.map((row) => {
           const jackpot = row.kind === "jackpot";
-          const bg = jackpot ? "#facc15" : idx % 2 === 0 ? "#fffbeb" : "#ffffff";
+          const vals = stations.map((s) => cellValue(s, row.key));
+          const maxLines = Math.max(
+            1,
+            ...vals.map((v) => (Array.isArray(v) ? v.length : 1))
+          );
+          const minH =
+            row.kind === "multi"
+              ? Math.max(52, maxLines * 22 + 10)
+              : jackpot
+                ? 56
+                : 42;
+
           return (
-            <div key={row.label} style={{ display: "flex", width: "100%" }}>
+            <div key={row.code} style={{ display: "flex", width: "100%" }}>
+              {/* Label column */}
               <div
                 style={{
                   display: "flex",
-                  width: 90,
-                  background: jackpot ? "#facc15" : "#fde68a",
-                  color: "#b91c1c",
-                  fontWeight: 800,
-                  fontSize: 18,
+                  flexDirection: "row",
+                  width: labelW,
+                  background: jackpot ? COLORS.orange : COLORS.beige,
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: "8px 4px",
-                  border: "1px solid #374151",
-                  minHeight: row.kind === "multi" ? 64 : 44,
+                  padding: "4px 2px",
+                  border: `1px solid ${COLORS.border}`,
+                  minHeight: minH,
                 }}
               >
-                {row.label}
+                {row.note ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: 14,
+                      marginRight: 2,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {"Dò lại kết quả Công ty sau 17h".split("").map((ch, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          fontSize: 7,
+                          color: COLORS.red,
+                          lineHeight: 1.05,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {ch === " " ? "·" : ch}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      fontSize: jackpot ? 22 : 18,
+                      fontWeight: 800,
+                      color: jackpot ? COLORS.red : COLORS.black,
+                    }}
+                  >
+                    {row.code}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: jackpot ? COLORS.redDark : COLORS.black,
+                    }}
+                  >
+                    {row.prize}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      fontSize: 10,
+                      color: COLORS.gray,
+                    }}
+                  >
+                    {row.digits}
+                  </div>
+                </div>
               </div>
-              {stations.map((s) => {
-                const val = cellValue(s, row.key);
+
+              {/* Number columns */}
+              {stations.map((s, si) => {
+                const val = vals[si];
                 const isMulti = Array.isArray(val);
                 return (
                   <div
-                    key={`${row.label}-${s.code}`}
+                    key={`${row.code}-${s.code}`}
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       flex: 1,
-                      background: bg,
+                      background: jackpot ? COLORS.yellow : COLORS.white,
                       color:
-                        row.kind === "red" || jackpot ? "#c81010" : "#111827",
+                        row.kind === "red" || jackpot
+                          ? COLORS.red
+                          : COLORS.black,
                       fontWeight: 800,
-                      fontSize: jackpot || row.kind === "red" ? 26 : isMulti ? 15 : 20,
+                      fontSize:
+                        jackpot || row.kind === "red"
+                          ? 28
+                          : isMulti
+                            ? 16
+                            : 20,
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: "6px 4px",
-                      border: "1px solid #374151",
-                      minHeight: row.kind === "multi" ? 64 : 44,
-                      lineHeight: 1.25,
+                      padding: "4px 2px",
+                      border: `1px solid ${COLORS.border}`,
+                      minHeight: minH,
+                      lineHeight: 1.2,
                     }}
                   >
                     {isMulti
@@ -207,16 +386,22 @@ export function renderKqxsImage(opts: {
           );
         })}
 
+        {/* ===== FOOTER ===== */}
         <div
           style={{
             display: "flex",
-            marginTop: 14,
-            fontSize: 14,
-            color: "#0f766e",
+            marginTop: 10,
+            width: "100%",
+            background: COLORS.navyDeep,
+            color: COLORS.white,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "12px 10px",
+            fontSize: 16,
             fontWeight: 700,
           }}
         >
-          Đối chiếu kết quả · PHƯỚC DANH · https://vesophuocdanh.vn
+          Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
         </div>
       </div>
     ),
