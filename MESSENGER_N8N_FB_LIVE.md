@@ -2,11 +2,13 @@
 
 ---
 
-Anh muốn **bảng đang xổ ngay trên Fanpage** (không bấm link) → phải dùng **Facebook Live Video** (RTMPS), không phải sửa bài chữ.
+Anh muốn **bảng đang xổ ngay trên Fanpage** (không bấm link) → **Facebook Live Video** (RTMPS).
+
+Realtime từng số: số nào API có → `/live` hiện → OBS stream → **Fanpage Live hiện đúng số đó** (~1–3s). n8n không sửa từng số.
 
 Cách chuẩn:
 1. n8n tạo Live trên Page → lấy `secure_stream_url`
-2. OBS (Browser Source = https://kqxs-phuocdanh-api.vercel.app/live) → stream lên FB → tường hiện **Đang phát trực tiếp** (quay thật + từng số)
+2. OBS (Browser Source = https://kqxs-phuocdanh-api.vercel.app/live) → stream → tường **Đang phát trực tiếp**
 3. Đủ ĐB → tắt Live + đăng **ảnh + caption**
 
 Câu lệnh chat n8n đầy đủ:  

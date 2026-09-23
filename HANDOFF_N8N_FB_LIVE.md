@@ -3,7 +3,18 @@
 ## Ý bạn muốn
 
 Bảng chữ **đang xổ realtime ngay trên Fanpage** (vòng quay thật, hiện từng chữ số) — **không** bắt khách bấm `/live`.  
+**Số nào vừa có trên API → Live trên tường FB hiện đúng số đó** (trễ ~1–3 giây vì `/live` poll 1.5s + encode).  
 Cuối cùng đăng bài **ảnh + caption** chuẩn.
+
+Luồng realtime từng số (không qua n8n từng lần):
+
+```
+API today có số mới  →  /live tự poll 1.5s hiện số + quay
+                     →  OBS/ffmpeg đang stream RTMPS
+                     →  Fanpage Live Video hiện đúng số đó
+```
+
+n8n **không** sửa bài mỗi số — chỉ tạo Live lúc đầu + tắt Live + đăng ảnh khi `completed`.
 
 ## Thực tế kỹ thuật
 
@@ -48,13 +59,15 @@ Phần còn thiếu: **n8n tạo Live + encoder đẩy RTMPS**.
 Tạo giúp tôi bộ workflow n8n chuẩn vàng tên:
 "Phước Danh – LIVE Video trên Fanpage + ảnh cuối"
 
-===== Ý TƯỞNG =====
-Không chỉ sửa bài chữ / không chỉ gửi link /live.
-Phải LIVE VIDEO ngay trên tường Fanpage (khách thấy đang phát trực tiếp).
-Nguồn hình: trang https://kqxs-phuocdanh-api.vercel.app/live
-(đã có vòng quay CSS thật + hiện từng chữ số khi API có số).
-Encoder (OBS hoặc ffmpeg trên VPS) sẽ Browser Source trang /live rồi đẩy RTMPS.
-n8n: tạo LiveVideo → trả stream URL → (tuỳ chọn webhook báo encoder) → khi completed kết thúc live + đăng ảnh bảng.
+===== Ý TƯỞNG (ĐÚNG ĐỦ Ý) =====
+1. LIVE VIDEO ngay trên tường Fanpage — khách thấy "Đang phát trực tiếp", KHÔNG bấm /live.
+2. REALTIME TỪNG SỐ: số nào API /today vừa có → trang /live hiện đúng số đó (quay + từng chữ số) → encoder đang stream → Fanpage Live hiện đúng số đó trong ~1–3 giây.
+3. n8n KHÔNG đẩy từng số lên FB. /live tự poll API mỗi 1.5s; OBS chỉ giữ luồng RTMPS liên tục.
+4. Đủ giải ĐB (completed=true) → tắt Live + đăng 1 bài ảnh bảng form + caption.
+
+Nguồn hình: https://kqxs-phuocdanh-api.vercel.app/live
+Encoder (OBS/ffmpeg): Browser Source = /live → đẩy RTMPS theo secure_stream_url.
+n8n: tạo LiveVideo → (tuỳ chọn báo encoder) → chờ completed → end live + /photos.
 
 ===== API VERCEL (dữ liệu số) =====
 GET https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
@@ -202,12 +215,13 @@ Sticky B:
 "Đủ ĐB → tắt LIVE → đăng 1 ảnh form + caption. Không đăng ảnh lúc đang live."
 
 ===== QUY TẮC =====
-1. Live trên tường Fanpage = Live Video RTMPS, không phải sửa bài chữ.
-2. Hình live = /live (đã có quay + từng chữ số).
-3. Encoder bắt buộc (OBS hoặc VPS).
-4. Đủ ĐB → end live + 1 ảnh.
-5. Để {{PAGE_ID}} {{PAGE_TOKEN}}.
-6. Kiểm Page ≥ 100 followers + quyền Live Video.
+1. Live trên tường Fanpage = Live Video RTMPS, không phải sửa bài chữ / không gửi link thay live.
+2. Hình live = /live (quay + từng chữ số). Số API có → /live hiện → stream → FB hiện đúng số đó.
+3. Encoder bắt buộc giữ RTMPS suốt giờ xổ (OBS hoặc VPS). Mất encoder = Fanpage không còn hình live.
+4. n8n không poll để sửa từng số trên FB; chỉ tạo live + kết thúc + ảnh cuối.
+5. Đủ ĐB → end live + 1 ảnh form. Không đăng ảnh lúc đang live.
+6. Để {{PAGE_ID}} {{PAGE_TOKEN}}.
+7. Kiểm Page ≥ 100 followers + quyền Live Video.
 
 ===== CHẠY THỬ =====
 1. Execute A → lấy secure_stream_url
