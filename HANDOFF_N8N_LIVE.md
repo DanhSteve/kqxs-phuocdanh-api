@@ -22,13 +22,15 @@
 
 ### Kết luận kiến trúc MVP (chốt)
 
+**Live = bảng chữ, thêm số dần — không đăng ảnh lúc đang sổ.**
+
 ```
-~16:13  n8n đăng BÀI CHỮ sườn (⏳ chuẩn bị xổ)
-16:15–35  mỗi 20–30s: gọi Vercel → nếu progressKey đổi → SỬA message bài đó (liveCaption)
-completed  Sửa lần cuối + ĐĂNG ẢNH bảng form Phước Danh (1 lần)
+~16:13  n8n đăng BÀI CHỮ sườn (⏳ chuẩn bị xổ / khung đài)
+16:15–35  mỗi 20–30s: gọi Vercel → nếu progressKey đổi → SỬA message = liveCaption (thêm số)
+completed  (tuỳ chọn) ĐĂNG ẢNH bảng form 1 lần — hoặc chỉ sửa chữ lần cuối rồi dừng
 ```
 
-Người xem Fanpage thấy bài **cập nhật số dần** (đang live bằng chữ). Khi đủ ĐB → có **ảnh bảng đẹp** như hiện tại.
+Người xem Fanpage thấy bài **cập nhật số dần bằng chữ**. Ảnh bảng đẹp chỉ (nếu muốn) sau khi đủ ĐB.
 
 Vercel **vẫn chỉ cào khi được gọi** (on-demand từ n8n). Nguồn: `vesophuocdanh.vn/api/xsmn/live`.
 
@@ -119,13 +121,9 @@ Fields dùng: stage, progressKey, liveCaption, completed, caption, imageUrl, dat
    Body:
      message = {{ $json.liveCaption }}
      access_token = {{PAGE_TOKEN}}
-6) IF data.completed === true AND photoPosted === false:
-   HTTP POST ảnh:
-     URL: https://graph.facebook.com/v19.0/{{PAGE_ID}}/photos
-     url = {{ $json.imageUrl }}
-     caption = {{ $json.caption }}
-     access_token = {{PAGE_TOKEN}}
-   rồi Code: store.photoPosted = true;
+6) (TUỲ CHỌN) IF data.completed === true AND muốn đăng ảnh bảng:
+   HTTP POST ảnh một lần rồi store.photoPosted = true.
+   Nếu chỉ live bằng chữ: bỏ bước này — chỉ cập nhật liveCaption lần cuối rồi dừng.
 
 Quy tắc:
 - Không đăng ảnh khi chưa completed

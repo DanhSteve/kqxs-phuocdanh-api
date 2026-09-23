@@ -5,9 +5,10 @@
 Anh Khoa ơi, chốt hướng **live đang xổ** như anh bảo:
 
 **Cách làm (Facebook cho phép):**  
-Trước giờ xổ ~1–2 phút, n8n đăng **bài chữ sườn**. Trong lúc sổ, n8n gọi Vercel mỗi ~30 giây; Vercel cào `vesophuocdanh.vn` → có số mới thì **sửa cùng bài** (`liveCaption`). Đủ giải ĐB mới **đăng 1 ảnh bảng** form Phước Danh.
+Trước giờ xổ ~1–2 phút, n8n đăng **bảng chữ sườn** (bài `feed`). Trong lúc sổ, gọi Vercel mỗi ~30 giây → có số mới thì **sửa cùng bài**, ghi thêm số vào bảng chữ (`liveCaption`).  
+**Lúc đang live: không đăng ảnh** — chỉ chữ. (Tuỳ chọn: đủ ĐB mới đăng thêm 1 ảnh bảng đẹp.)
 
-**Không làm:** quay tròn video/GIF thay ảnh liên tục trên cùng 1 bài (API Fanpage không hỗ trợ tốt).
+**Không làm:** thay ảnh / quay tròn liên tục trên Fanpage (API không hỗ trợ tốt).
 
 **Lệnh dán chat n8n + plan đủ:**  
 https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N_LIVE.md
