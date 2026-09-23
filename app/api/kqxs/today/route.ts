@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { corsHeaders, fetchXsmn } from "@/lib/xsmn";
+import { buildLiveCaption, corsHeaders, fetchXsmn } from "@/lib/xsmn";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -17,9 +17,20 @@ export async function GET(req: NextRequest) {
     const imageUrl = payload.dateIso
       ? `${origin}/api/kqxs/image?date=${payload.dateIso}`
       : `${origin}/api/kqxs/image`;
+    const liveBoardUrl = `${origin}/live`;
 
     return NextResponse.json(
-      { ...payload, imageUrl },
+      {
+        ...payload,
+        imageUrl,
+        liveBoardUrl,
+        liveCaption: buildLiveCaption(
+          payload.date,
+          payload.stations,
+          payload.stage,
+          liveBoardUrl
+        ),
+      },
       { status: 200, headers: corsHeaders() }
     );
   } catch (err) {

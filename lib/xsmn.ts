@@ -3,6 +3,8 @@
  * Contract ổn định cho n8n → Fanpage Phước Danh
  */
 
+import { spinFrame } from "./live-reveal";
+
 export const SOURCE_API = "https://vesophuocdanh.vn/api/xsmn/live";
 export const HOTLINE = "091.949.4566 - 0987.494.565";
 export const WEBSITE = "https://vesophuocdanh.vn";
@@ -39,6 +41,8 @@ export type KqxsPayload = {
   caption: string;
   /** Caption dạng bảng chữ cập nhật dần khi đang live */
   liveCaption: string;
+  /** Trang HTML vòng quay CSS thật + hiện từng chữ số */
+  liveBoardUrl?: string;
   imageUrl: string;
   source: string;
   serverTime?: string;
@@ -146,28 +150,29 @@ export function buildCaption(date: string, stations: Station[]): string {
   ].join("\n");
 }
 
-/** Ô trống khi đang live → vòng tròn quay (Facebook hiển thị emoji) */
-const SPIN = "🔄";
-
-function liveCell(value: string, emptyWidth = 2): string {
+/** Ô trống — khung spinner đổi theo thời gian (cập nhật mỗi lần n8n poll) */
+function liveCell(value: string, nowMs: number): string {
   const v = String(value || "").trim();
-  return v || SPIN;
+  return v || spinFrame(nowMs);
 }
 
-function liveMulti(values: string[]): string {
-  if (!values.length) return SPIN;
-  return values.map((v) => v || SPIN).join("·");
+function liveMulti(values: string[], nowMs: number): string {
+  if (!values.length) return spinFrame(nowMs);
+  return values.map((v) => (v ? v : spinFrame(nowMs))).join("·");
 }
 
 /**
- * Bảng chữ live — khung cấu trúc gần form Phước Danh
- * (Fanpage không có CSS màu thật → dùng emoji + ký hiệu để phân tầng)
+ * Bảng chữ live cho Fanpage.
+ * Vòng quay CSS THẬT + hiện từng chữ số: trang /live
+ * (FB không chạy CSS trong bài — n8n gắn link /live + poll ~2s sửa chữ)
  */
 export function buildLiveCaption(
   date: string,
   stations: Station[],
-  stage: "waiting" | "live" | "completed"
+  stage: "waiting" | "live" | "completed",
+  liveBoardUrl?: string
 ): string {
+  const nowMs = Date.now();
   const statusLine =
     stage === "completed"
       ? `✅ ĐÃ ĐỦ GIẢI ĐẶC BIỆT — ${date}`
@@ -187,43 +192,40 @@ export function buildLiveCaption(
     return `${mark}${label}│ ${cells}`;
   };
 
-  const board = [
+  return [
     "╔══════════════════════════════╗",
     "║ 🟥 ĐẠI LÝ VÉ SỐ PHƯỚC DANH  ║",
-    "║ 📍 137 LÊ LỢI, P. TRÀ VINH  ║",
-    "║    — VĨNH LONG · XSMN       ║",
+    "║ 📍 137 LÊ LỢI — VĨNH LONG   ║",
     "╚══════════════════════════════╝",
     "",
     statusLine,
     `🔵 ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI  🔴 0919.494.566`,
-    "",
+    liveBoardUrl
+      ? `\n▶️ LIVE QUAY THẬT (từng chữ số 7→77→778):\n${liveBoardUrl}\n`
+      : "",
     `🏷 Đài: ${names.map((n, i) => `${n}(${codes[i]})`).join(" · ")}`,
     "",
     "——— BẢNG KẾT QUẢ (LIVE) ———",
     `GIẢI     │ ${names.join(" │ ")}`,
-    "————————┼" + names.map(() => "——————").join("┼"),
-    row("G.8 100N (2)", "🔴 ", (s) => liveCell(s.g8)),
-    row("G.7 200N (3)", "⬛ ", (s) => liveCell(s.g7)),
-    row("G.6 400N (4)", "⬛ ", (s) => liveMulti(s.g6 || [])),
-    row("G.5 1TR  (4)", "⬛ ", (s) => liveCell(s.g5)),
-    row("G.4 3TR  (5)", "⬛ ", (s) => liveMulti(s.g4 || [])),
-    "         └ dò lại KQ Công ty sau 17h",
-    row("G.3 10TR (5)", "⬛ ", (s) => liveMulti(s.g3 || [])),
-    row("G.2 15TR (5)", "⬛ ", (s) => liveCell(s.g2)),
-    row("G.1 30TR (5)", "⬛ ", (s) => liveCell(s.g1)),
-    row("ĐB  2TỶ  (6)", "🟡🔴 ", (s) => liveCell(s.gdb, 6)),
+    row("G.8 100N", "🔴 ", (s) => liveCell(s.g8, nowMs)),
+    row("G.7 200N", "⬛ ", (s) => liveCell(s.g7, nowMs)),
+    row("G.6 400N", "⬛ ", (s) => liveMulti(s.g6 || [], nowMs)),
+    row("G.5 1TR ", "⬛ ", (s) => liveCell(s.g5, nowMs)),
+    row("G.4 3TR ", "⬛ ", (s) => liveMulti(s.g4 || [], nowMs)),
+    row("G.3 10TR", "⬛ ", (s) => liveMulti(s.g3 || [], nowMs)),
+    row("G.2 15TR", "⬛ ", (s) => liveCell(s.g2, nowMs)),
+    row("G.1 30TR", "⬛ ", (s) => liveCell(s.g1, nowMs)),
+    row("ĐB  2TỶ ", "🟡🔴 ", (s) => liveCell(s.gdb, nowMs)),
     "",
-    `${SPIN} = ô chưa có số (đang chờ)`,
-    "🔴 = giải nổi bật (G.8 / ĐB) · 🟡 = hàng đặc biệt",
+    "⠋ = đang chờ (đổi mỗi lần cập nhật ~2 giây)",
+    "Vòng tròn quay THẬT + hiện từng chữ số: mở link LIVE.",
     "",
     stage === "completed"
-      ? "✅ Đã đủ ĐB — bài ẢNH bảng form chuẩn sẽ đăng ngay."
-      : "📡 Cập nhật tự động từ nguồn chính thức…",
+      ? "✅ Đủ ĐB — đăng ẢNH bảng form + caption chuẩn."
+      : "📡 Poll gần realtime từ nguồn chính thức…",
     `☎️ Hotline: ${HOTLINE}`,
     `🌐 ${WEBSITE}`,
-  ];
-
-  return board.join("\n");
+  ].join("\n");
 }
 
 function buildProgressKey(stations: Station[]): string {

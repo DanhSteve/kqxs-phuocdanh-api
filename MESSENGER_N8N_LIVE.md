@@ -1,16 +1,15 @@
-# Tin nhắn gửi team — Live bảng chữ → ảnh cuối
+# Tin nhắn — Live gần realtime
 
 ---
 
-Anh Khoa ơi, chốt live như sau:
+Anh ơi, 30 giây là chậm — đã chỉnh:
 
-1) **Đang xổ:** đăng / sửa **bảng chữ** (khung đài + giải như form). Ô chưa có số hiện **🔄**. Có số thì thay vào.  
-2) **Đủ giải ĐB:** đăng **1 bài ảnh bảng form** + nội dung `caption` chuẩn (đủ hotline, địa chỉ).
+1) **Poll n8n mỗi ~2 giây** (khung 16:15–16:35)  
+2) **Vòng quay THẬT + hiện từng chữ số** (7→77→778): trang  
+https://kqxs-phuocdanh-api.vercel.app/live  
+(Bài Fanpage gắn link này — FB không quay được CSS trong chữ)  
+3) Đủ ĐB → đăng **ảnh bảng + caption** chuẩn  
 
-Lệnh chat n8n:  
-https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N_LIVE.md
-
-API: https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today  
-(xem field `liveCaption`)
+Lệnh: https://github.com/DanhSteve/kqxs-phuocdanh-api/blob/master/HANDOFF_N8N_LIVE.md
 
 ---

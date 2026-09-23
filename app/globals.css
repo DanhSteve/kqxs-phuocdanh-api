@@ -308,3 +308,225 @@ code,
 .steps strong {
   color: var(--ink);
 }
+
+/* ===== LIVE BOARD (/live) — vòng quay CSS thật + hiện từng chữ số ===== */
+.live-shell {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1rem 0.75rem 2rem;
+  background: #fff;
+  color: #111;
+  min-height: 100vh;
+}
+
+.live-head {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.live-head h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 800;
+  color: #c8102e;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+.live-addr {
+  margin: 0.35rem 0 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.live-region {
+  margin: 0.2rem 0 0;
+  font-style: italic;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.live-bar {
+  display: flex;
+  border: 2px solid #0d3b7a;
+  margin-bottom: 0.65rem;
+}
+
+.live-date {
+  width: 5.5rem;
+  background: #b71c1c;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  font-weight: 800;
+}
+
+.live-date strong {
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.live-date span {
+  font-size: 0.85rem;
+}
+
+.live-hotline {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+  font-weight: 800;
+  color: #0d47a1;
+  font-size: 0.95rem;
+}
+
+.live-hotline em {
+  color: #c8102e;
+  font-style: normal;
+  font-size: 1.15rem;
+}
+
+.live-status {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 0.65rem;
+  color: #b71c1c;
+}
+
+.live-table-wrap {
+  overflow-x: auto;
+  border: 1.5px solid #1a1a1a;
+}
+
+.live-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+.live-table th,
+.live-table td {
+  border: 1px solid #222;
+  padding: 0.4rem 0.25rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.live-table thead th {
+  background: #0d3b7a;
+  color: #fff;
+  font-weight: 800;
+}
+
+.live-table thead th small {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.live-table .col-giai {
+  background: #f5ecd8;
+  width: 6.5rem;
+  font-weight: 800;
+}
+
+.live-table .col-giai strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.live-table .col-giai small {
+  display: block;
+  font-size: 0.72rem;
+  color: #444;
+  font-weight: 700;
+}
+
+.live-table .is-jackpot {
+  background: #ffe082;
+}
+
+.live-table .is-jackpot-label {
+  background: #f5a623;
+  color: #fff;
+}
+
+.live-table .is-jackpot-label small {
+  color: #fff;
+}
+
+.live-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+}
+
+.live-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08rem;
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  min-height: 1.4rem;
+}
+
+.live-num.is-red {
+  color: #c8102e;
+}
+
+.live-digit {
+  display: inline-block;
+}
+
+/* Vòng tròn quay THẬT (CSS animation) */
+.live-spin {
+  display: inline-block;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2.5px solid rgba(0, 0, 0, 0.15);
+  border-top-color: #c8102e;
+  border-radius: 50%;
+  animation: live-spin-rotate 0.65s linear infinite;
+  vertical-align: middle;
+}
+
+.live-num.is-red .live-spin {
+  border-top-color: #c8102e;
+  border-left-color: rgba(200, 16, 46, 0.25);
+}
+
+@keyframes live-spin-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.live-foot {
+  margin-top: 0.75rem;
+  background: #0a2f5c;
+  color: #fff;
+  text-align: center;
+  padding: 0.75rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .live-num {
+    font-size: 0.95rem;
+  }
+  .live-table .col-giai {
+    width: 4.8rem;
+  }
+}
