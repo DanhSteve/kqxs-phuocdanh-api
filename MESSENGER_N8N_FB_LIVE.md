@@ -6,7 +6,7 @@ Anh muốn **bảng đang xổ ngay trên Fanpage** (không bấm link) → **Fa
 
 Realtime từng số: số nào API có → `/live` hiện → OBS stream → **Fanpage Live hiện đúng số đó** (~1–3s).
 
-**Sau khi sổ hết (góp ý Khoa):**
+**Sau khi sổ hết:**
 1. Tắt Live nhưng **giữ nguyên video đã quay** trên tường (bài VOD).
 2. Chữ kèm bài = `captionAfterLive` — giữ thương hiệu, **không** dòng giải ĐB, **không** bảng live sổ.
 3. Đăng ảnh form riêng = **tuỳ chọn** (không bắt buộc).

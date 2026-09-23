@@ -157,7 +157,7 @@ export function buildCaption(date: string, stations: Station[]): string {
 
 /**
  * Nội dung bài viết gắn video Live đã quay (sau khi sổ xong).
- * Theo góp ý: giữ nội dung — bỏ dòng giải ĐB + bỏ phần live sổ (số nằm trong video).
+ * Giữ nội dung thương hiệu — bỏ dòng giải ĐB + bỏ phần live sổ (số nằm trong video).
  */
 export function buildCaptionAfterLive(date: string): string {
   return [

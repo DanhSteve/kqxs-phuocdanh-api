@@ -1,11 +1,11 @@
 # Chuẩn vàng — LIVE ngay trên tường Fanpage (Facebook Live Video)
 
-## Ý bạn muốn (+ góp ý anh Khoa)
+## Ý bạn muốn
 
 Bảng chữ **đang xổ realtime ngay trên Fanpage** (vòng quay thật, hiện từng chữ số) — **không** bắt khách bấm `/live`.  
 **Số nào vừa có trên API → Live trên tường FB hiện đúng số đó** (trễ ~1–3 giây vì `/live` poll 1.5s + encode).
 
-**Sau khi sổ hết số (góp ý Khoa):**
+**Sau khi sổ hết số:**
 
 1. **Để theo bài đăng** trên Fanpage (Live kết thúc → thành bài video trên tường).
 2. **Giữ nguyên video đã quay** (VOD) — không xóa, không cắt lại.
@@ -71,7 +71,7 @@ Phần còn thiếu: **n8n tạo Live + encoder đẩy RTMPS**.
 Tạo giúp tôi bộ workflow n8n chuẩn vàng tên:
 "Phước Danh – LIVE Video trên Fanpage (giữ VOD sau xổ)"
 
-===== Ý TƯỞNG (ĐÚNG ĐỦ Ý + GÓP Ý KHOA) =====
+===== Ý TƯỞNG (ĐÚNG ĐỦ Ý) =====
 1. LIVE VIDEO ngay trên tường Fanpage — khách thấy "Đang phát trực tiếp", KHÔNG bấm /live.
 2. REALTIME TỪNG SỐ: số nào API /today vừa có → /live hiện đúng số → encoder stream → Fanpage Live hiện đúng số (~1–3s).
 3. n8n KHÔNG đẩy từng số lên FB. /live tự poll 1.5s; OBS giữ RTMPS liên tục.
@@ -245,7 +245,7 @@ NODE B7 — (TUỲ CHỌN) HTTP POST đăng ảnh bảng form — chỉ nếu te
   url = {{ $json.imageUrl }}
   caption = {{ $json.caption }}
   access_token = {{PAGE_TOKEN}}
-Mặc định chuẩn Khoa: BỎ NODE B7 — chỉ giữ VOD + captionAfterLive.
+Mặc định: BỎ NODE B7 — chỉ giữ VOD + captionAfterLive.
 
 NODE B8 — Code
 ```js
