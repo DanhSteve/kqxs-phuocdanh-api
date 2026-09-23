@@ -1,11 +1,10 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { ImageResponse } from "next/og";
-import type { CSSProperties } from "react";
 import type { Station } from "./xsmn";
 import { shortStationName } from "./xsmn";
 
-/** Form ảnh bảng Fanpage — bám mẫu Phước Danh; toàn bộ chữ/số ExtraBold */
+/** Form ảnh Fanpage — mọi chữ/số Black 900, cỡ đồng bộ theo nhóm */
 const C = {
   red: "#c8102e",
   redDeep: "#b71c1c",
@@ -15,41 +14,41 @@ const C = {
   orange: "#f5a623",
   yellow: "#ffe082",
   black: "#0a0a0a",
-  gray: "#444444",
-  grayMid: "#555555",
+  gray: "#333333",
+  grayMid: "#444444",
   blueText: "#0d47a1",
   white: "#ffffff",
   border: "#1a1a1a",
-  dotted: "#888888",
+  dotted: "#777777",
 };
 
 const FONT = "Be Vietnam Pro";
 
-/** Nhóm cỡ chữ */
+/** Nhóm cỡ chữ — mọi dòng đều fontWeight 900 */
 const T = {
-  title: 36,
-  address: 16,
-  region: 14,
-  dateBig: 30,
-  dateYear: 16,
-  slogan: 17,
-  phone: 24,
-  giai: 18,
-  station: 19,
-  ticket: 13,
-  prizeCode: 20,
-  prizeMeta: 13,
-  note: 13,
-  footer: 16,
+  title: 38,
+  address: 17,
+  region: 15,
+  dateBig: 32,
+  dateYear: 17,
+  slogan: 18,
+  phone: 26,
+  giai: 19,
+  station: 20,
+  ticket: 14,
+  prizeCode: 22,
+  prizeMeta: 15,
+  note: 14,
+  footer: 17,
 } as const;
 
-/** Nhóm cỡ số theo số chữ số (đồng bộ trong nhóm) */
+/** Nhóm cỡ số theo số chữ số */
 const N = {
-  d2: 32, // G.8
-  d3: 26, // G.7
-  d4: 22, // G.6 + G.5
-  d5: 20, // G.4 + G.3 + G.2 + G.1
-  d6: 32, // ĐB
+  d2: 34,
+  d3: 28,
+  d4: 24,
+  d5: 21,
+  d6: 34,
 } as const;
 
 type RowDef = {
@@ -120,22 +119,37 @@ function splitDate(date: string): { dayMonth: string; year: string } {
 
 function loadFonts() {
   const dir = join(process.cwd(), "public", "fonts");
-  const files = [
-    ["latin-800.ttf", 800, "normal"],
-    ["viet-800.ttf", 800, "normal"],
+  // Chỉ tải bộ cần thiết — đủ glyph Việt + Latin, tránh OOM
+  const files: Array<[string, 800 | 900, "normal" | "italic"]> = [
+    ["latin-900.ttf", 900, "normal"],
+    ["viet-900.ttf", 900, "normal"],
     ["latin-800-italic.ttf", 800, "italic"],
     ["viet-800-italic.ttf", 800, "italic"],
-  ] as const;
+  ];
 
   return files.map(([file, weight, style]) => ({
     name: FONT,
     data: readFileSync(join(dir, file)),
-    weight: weight as 800,
-    style: style as "normal" | "italic",
+    weight,
+    style,
   }));
 }
 
-const bold: CSSProperties = { fontWeight: 800, fontFamily: FONT };
+/** Style chữ đậm — luôn ghi rõ weight + family (tránh Satori fallback mỏng) */
+function tx(
+  size: number,
+  color: string,
+  extra: Record<string, string | number> = {}
+) {
+  return {
+    display: "flex" as const,
+    fontFamily: FONT,
+    fontWeight: 900 as const,
+    fontSize: size,
+    color,
+    ...extra,
+  };
+}
 
 export async function renderKqxsImage(opts: {
   date: string;
@@ -143,10 +157,10 @@ export async function renderKqxsImage(opts: {
 }): Promise<ImageResponse> {
   const { date, stations } = opts;
   const n = Math.max(stations.length, 1);
-  const labelW = 136;
-  const colW = Math.max(160, Math.min(210, Math.floor((940 - labelW) / n)));
+  const labelW = 140;
+  const colW = Math.max(165, Math.min(220, Math.floor((960 - labelW) / n)));
   const width = labelW + colW * n + 40;
-  const height = 1180;
+  const height = 1200;
   const { dayMonth, year } = splitDate(date);
   const fonts = loadFonts();
 
@@ -161,10 +175,9 @@ export async function renderKqxsImage(opts: {
           background: C.white,
           padding: "18px 20px 16px",
           fontFamily: FONT,
-          fontWeight: 800,
+          fontWeight: 900,
         }}
       >
-        {/* HEADER */}
         <div
           style={{
             display: "flex",
@@ -173,44 +186,23 @@ export async function renderKqxsImage(opts: {
             marginBottom: 8,
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              fontSize: T.title,
-              ...bold,
-              color: C.red,
-              letterSpacing: 0.5,
-            }}
-          >
+          <div style={tx(T.title, C.red, { letterSpacing: 0.5 })}>
             ĐẠI LÝ VÉ SỐ PHƯỚC DANH
           </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: T.address,
-              ...bold,
-              color: C.black,
-              marginTop: 4,
-            }}
-          >
+          <div style={tx(T.address, C.black, { marginTop: 4 })}>
             137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG
           </div>
           <div
-            style={{
-              display: "flex",
-              fontSize: T.region,
-              fontWeight: 800,
-              fontFamily: FONT,
-              fontStyle: "italic",
-              color: C.gray,
+            style={tx(T.region, C.gray, {
               marginTop: 2,
-            }}
+              fontStyle: "italic",
+              fontWeight: 800,
+            })}
           >
             XỔ SỐ MIỀN NAM
           </div>
         </div>
 
-        {/* DATE + HOTLINE */}
         <div
           style={{
             display: "flex",
@@ -225,30 +217,13 @@ export async function renderKqxsImage(opts: {
               flexDirection: "column",
               width: labelW,
               background: C.redDeep,
-              color: C.white,
               alignItems: "center",
               justifyContent: "center",
               padding: "6px 4px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                fontSize: T.dateBig,
-                ...bold,
-              }}
-            >
-              {dayMonth}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: T.dateYear,
-                ...bold,
-              }}
-            >
-              {year}
-            </div>
+            <div style={tx(T.dateBig, C.white)}>{dayMonth}</div>
+            <div style={tx(T.dateYear, C.white)}>{year}</div>
           </div>
           <div
             style={{
@@ -257,43 +232,22 @@ export async function renderKqxsImage(opts: {
               alignItems: "center",
               justifyContent: "center",
               background: C.white,
-              padding: "8px 8px",
+              padding: "8px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                fontSize: T.slogan,
-                ...bold,
-                color: C.blueText,
-                marginRight: 10,
-              }}
-            >
+            <div style={tx(T.slogan, C.blueText, { marginRight: 10 })}>
               ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI
             </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: T.phone,
-                ...bold,
-                color: C.red,
-              }}
-            >
-              0919.494.566
-            </div>
+            <div style={tx(T.phone, C.red)}>0919.494.566</div>
           </div>
         </div>
 
-        {/* TABLE HEADER */}
         <div style={{ display: "flex", width: "100%" }}>
           <div
             style={{
-              display: "flex",
+              ...tx(T.giai, C.black),
               width: labelW,
               background: C.beige,
-              color: C.black,
-              ...bold,
-              fontSize: T.giai,
               alignItems: "center",
               justifyContent: "center",
               padding: "10px 4px",
@@ -310,36 +264,20 @@ export async function renderKqxsImage(opts: {
                 flexDirection: "column",
                 flex: 1,
                 background: C.navy,
-                color: C.white,
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "8px 4px",
                 border: `1.5px solid ${C.border}`,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: T.station,
-                  ...bold,
-                }}
-              >
+              <div style={tx(T.station, C.white)}>
                 {shortStationName(s.name)}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: T.ticket,
-                  ...bold,
-                }}
-              >
-                {s.code || ""}
-              </div>
+              <div style={tx(T.ticket, C.white)}>{s.code || ""}</div>
             </div>
           ))}
         </div>
 
-        {/* DATA ROWS */}
         {ROWS.map((row) => {
           const jackpot = row.kind === "jackpot";
           const vals = stations.map((s) => cellValue(s, row.key));
@@ -348,13 +286,15 @@ export async function renderKqxsImage(opts: {
             ...vals.map((v) => (Array.isArray(v) ? v.length : 1))
           );
           const size = numSize(row.digitGroup);
-          const lineH = Math.round(size * 1.2);
+          const lineH = Math.round(size * 1.22);
           const minH =
             row.kind === "multi"
-              ? Math.max(row.note ? 175 : 62, maxLines * lineH + 14)
+              ? Math.max(row.note ? 190 : 68, maxLines * lineH + 16)
               : jackpot
-                ? 62
-                : 48;
+                ? 66
+                : 50;
+          const labelColor = jackpot ? C.white : C.black;
+          const metaColor = jackpot ? C.white : C.grayMid;
 
           return (
             <div key={row.code} style={{ display: "flex", width: "100%" }}>
@@ -380,35 +320,11 @@ export async function renderKqxsImage(opts: {
                     padding: "4px 2px",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      fontSize: jackpot ? 22 : T.prizeCode,
-                      ...bold,
-                      color: jackpot ? C.white : C.black,
-                    }}
-                  >
+                  <div style={tx(jackpot ? 24 : T.prizeCode, labelColor)}>
                     {row.code}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      fontSize: T.prizeMeta,
-                      ...bold,
-                      color: jackpot ? C.white : C.grayMid,
-                    }}
-                  >
-                    {row.prize}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      fontSize: T.prizeMeta,
-                      ...bold,
-                      color: jackpot ? C.white : C.gray,
-                    }}
-                  >
-                    {row.digits}
+                  <div style={tx(T.prizeMeta, metaColor)}>
+                    {`${row.prize} ${row.digits}`}
                   </div>
                 </div>
 
@@ -416,7 +332,7 @@ export async function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      width: 28,
+                      width: 32,
                       minHeight: minH,
                       borderLeft: `1.5px dashed ${C.dotted}`,
                       borderRight: `1.5px dashed ${C.dotted}`,
@@ -429,17 +345,17 @@ export async function renderKqxsImage(opts: {
                     <div
                       style={{
                         display: "flex",
-                        color: C.red,
-                        fontSize: T.note,
-                        fontWeight: 800,
                         fontFamily: FONT,
+                        fontWeight: 800,
                         fontStyle: "italic",
+                        fontSize: T.note,
+                        color: C.red,
                         whiteSpace: "nowrap",
                         transform: "rotate(-90deg)",
-                        width: minH - 10,
+                        width: Math.max(minH - 8, 200),
                         justifyContent: "center",
                         alignItems: "center",
-                        letterSpacing: 0.2,
+                        letterSpacing: 0.15,
                       }}
                     >
                       Dò lại kết quả Công ty sau 17h
@@ -451,6 +367,8 @@ export async function renderKqxsImage(opts: {
               {stations.map((s, si) => {
                 const val = vals[si];
                 const isMulti = Array.isArray(val);
+                const numColor =
+                  row.kind === "red" || jackpot ? C.red : C.black;
                 return (
                   <div
                     key={`${row.code}-${s.code}`}
@@ -459,11 +377,6 @@ export async function renderKqxsImage(opts: {
                       flexDirection: "column",
                       flex: 1,
                       background: jackpot ? C.yellow : C.white,
-                      color:
-                        row.kind === "red" || jackpot ? C.red : C.black,
-                      fontWeight: 800,
-                      fontFamily: FONT,
-                      fontSize: size,
                       alignItems: "center",
                       justifyContent: "center",
                       padding: "4px 2px",
@@ -474,19 +387,13 @@ export async function renderKqxsImage(opts: {
                   >
                     {isMulti
                       ? (val as string[]).map((num, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              display: "flex",
-                              fontWeight: 800,
-                              fontFamily: FONT,
-                              fontSize: size,
-                            }}
-                          >
+                          <div key={i} style={tx(size, numColor)}>
                             {num}
                           </div>
                         ))
-                      : (val as string)}
+                      : (
+                          <div style={tx(size, numColor)}>{val as string}</div>
+                        )}
                   </div>
                 );
               })}
@@ -496,16 +403,13 @@ export async function renderKqxsImage(opts: {
 
         <div
           style={{
-            display: "flex",
+            ...tx(T.footer, C.white),
             marginTop: 8,
             width: "100%",
             background: C.navyDeep,
-            color: C.white,
             alignItems: "center",
             justifyContent: "center",
             padding: "12px 10px",
-            fontSize: T.footer,
-            ...bold,
           }}
         >
           Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn

@@ -190,6 +190,13 @@ export default function N8nConsole() {
           </div>
         </div>
 
+        {!loading && data && !data.completed && !error ? (
+          <p className="panel__hint" style={{ marginTop: 8, color: "#fbbf24" }}>
+            Hôm nay chưa có đủ số nên ảnh chỉ hiện dấu —. Bấm{" "}
+            <strong>Mẫu ngày 19/09/2026</strong> để xem form đầy đủ số (kiểm in đậm / bố cục).
+          </p>
+        ) : null}
+
         <div className="actions">
           <button type="button" className="btn btn--gold btn--sm" disabled={loading} onClick={() => load()}>
             Kết quả hôm nay
