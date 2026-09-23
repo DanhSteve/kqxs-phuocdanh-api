@@ -189,7 +189,7 @@ export default function LiveBoardClient() {
       <header className="live-head">
         <h1>ĐẠI LÝ VÉ SỐ PHƯỚC DANH</h1>
         <p className="live-addr">137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG</p>
-        <p className="live-region">XỔ SỐ MIỀN NAM · LIVE</p>
+        <p className="live-region">XỔ SỐ MIỀN NAM</p>
       </header>
 
       <div className="live-bar">
@@ -201,16 +201,6 @@ export default function LiveBoardClient() {
           ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI{" "}
           <em>0919.494.566</em>
         </div>
-      </div>
-
-      <div className="live-status">
-        {error
-          ? `Lỗi: ${error}`
-          : data?.completed
-            ? "✅ Đã đủ giải đặc biệt"
-            : data?.stage === "live"
-              ? "🔴 Đang xổ trực tiếp — số mới hiện từng chữ"
-              : "⏳ Chuẩn bị xổ — ô trống đang quay"}
       </div>
 
       <div className="live-table-wrap">

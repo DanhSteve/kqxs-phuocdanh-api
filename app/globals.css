@@ -392,13 +392,6 @@ code,
   font-size: 1.15rem;
 }
 
-.live-status {
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 0.65rem;
-  color: #b71c1c;
-}
-
 .live-table-wrap {
   overflow-x: auto;
   border: 1.5px solid #1a1a1a;
