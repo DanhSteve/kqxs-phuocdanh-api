@@ -326,8 +326,8 @@ export function renderKqxsImage(opts: {
                       display: "flex",
                       width: 26,
                       minHeight: minH,
-                      borderLeft: `1.5px dotted ${C.dotted}`,
-                      borderRight: `1.5px dotted ${C.dotted}`,
+                      borderLeft: `1.5px dashed ${C.dotted}`,
+                      borderRight: `1.5px dashed ${C.dotted}`,
                       alignItems: "center",
                       justifyContent: "center",
                       overflow: "hidden",
@@ -417,20 +417,7 @@ export function renderKqxsImage(opts: {
             fontWeight: 800,
           }}
         >
-          <span style={{ display: "flex", fontWeight: 800 }}>
-            Xem Trực Tiếp và In Vé Dò tại{" "}
-          </span>
-          <span
-            style={{
-              display: "flex",
-              fontWeight: 800,
-              color: "#ffeb3b",
-              marginLeft: 4,
-              textDecoration: "underline",
-            }}
-          >
-            vesophuocdanh.vn
-          </span>
+          Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
         </div>
       </div>
     ),
