@@ -30,9 +30,15 @@ export type KqxsPayload = {
   date: string;
   dateIso: string;
   completed: boolean;
+  /** waiting = chưa số | live = đang sổ | completed = đủ ĐB */
+  stage: "waiting" | "live" | "completed";
+  /** Chuỗi đổi khi có số mới — n8n dùng để biết có cần cập nhật Fanpage không */
+  progressKey: string;
   station_count: number;
   stations: Station[];
   caption: string;
+  /** Caption dạng bảng chữ cập nhật dần khi đang live */
+  liveCaption: string;
   imageUrl: string;
   source: string;
   serverTime?: string;
@@ -140,6 +146,81 @@ export function buildCaption(date: string, stations: Station[]): string {
   ].join("\n");
 }
 
+/** Caption cập nhật dần khi đang xổ (đăng / sửa bài text Fanpage) */
+export function buildLiveCaption(
+  date: string,
+  stations: Station[],
+  stage: "waiting" | "live" | "completed"
+): string {
+  const header =
+    stage === "completed"
+      ? `✅ [CHÍNH THỨC] KQXS MIỀN NAM ${date}`
+      : stage === "live"
+        ? `🔴 ĐANG XỔ TRỰC TIẾP — KQXS MN ${date}`
+        : `⏳ CHUẨN BỊ XỔ — KQXS MN ${date}`;
+
+  const lines = stations.map((s) => {
+    const name = shortStationName(s.name);
+    const g8 = s.g8 || "…";
+    const g7 = s.g7 || "…";
+    const g1 = s.g1 || "…";
+    const gdb = s.gdb || "……";
+    return `${name} (${s.code || "—"})\nG8 ${g8} · G7 ${g7} · G1 ${g1} · ĐB ${gdb}`;
+  });
+
+  return [
+    header,
+    `⭐ Đại lý vé số PHƯỚC DANH`,
+    "",
+    ...lines,
+    "",
+    stage === "completed"
+      ? "Ảnh bảng đầy đủ sẽ được đăng kèm / đã cập nhật."
+      : "Đang cập nhật từng giải từ nguồn chính thức…",
+    `☎️ ${HOTLINE}`,
+    `🌐 ${WEBSITE}`,
+  ].join("\n");
+}
+
+function buildProgressKey(stations: Station[]): string {
+  return stations
+    .map((s) =>
+      [
+        s.code,
+        s.g8,
+        s.g7,
+        (s.g6 || []).join(","),
+        s.g5,
+        (s.g4 || []).join(","),
+        (s.g3 || []).join(","),
+        s.g2,
+        s.g1,
+        s.gdb,
+      ].join("|")
+    )
+    .join("||");
+}
+
+function detectStage(
+  stations: Station[],
+  completed: boolean
+): "waiting" | "live" | "completed" {
+  if (completed) return "completed";
+  const hasAny = stations.some(
+    (s) =>
+      s.g8 ||
+      s.g7 ||
+      s.g5 ||
+      s.g2 ||
+      s.g1 ||
+      s.gdb ||
+      (s.g6 && s.g6.length) ||
+      (s.g4 && s.g4.length) ||
+      (s.g3 && s.g3.length)
+  );
+  return hasAny ? "live" : "waiting";
+}
+
 export async function fetchXsmn(dateIso?: string | null): Promise<{
   raw: unknown;
   payload: Omit<KqxsPayload, "imageUrl">;
@@ -179,6 +260,8 @@ export async function fetchXsmn(dateIso?: string | null): Promise<{
   const completed =
     stations.length >= 3 &&
     stations.every((s) => onlyDigits(s.gdb).length === 6);
+  const stage = detectStage(stations, completed);
+  const progressKey = buildProgressKey(stations);
 
   return {
     raw,
@@ -186,9 +269,12 @@ export async function fetchXsmn(dateIso?: string | null): Promise<{
       date,
       dateIso: dateIsoResolved,
       completed,
+      stage,
+      progressKey,
       station_count: stations.length,
       stations,
       caption: buildCaption(date, stations),
+      liveCaption: buildLiveCaption(date, stations, stage),
       source: url,
       serverTime: raw.serverTime,
     },
