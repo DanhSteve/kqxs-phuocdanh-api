@@ -2,21 +2,22 @@ import { ImageResponse } from "next/og";
 import type { Station } from "./xsmn";
 import { shortStationName } from "./xsmn";
 
-/** Form ảnh bảng Fanpage — bám mẫu Đại lý vé số Phước Danh */
-const COLORS = {
-  red: "#c41e1e",
-  redDark: "#a01818",
-  navy: "#1a3a7a",
-  navyDeep: "#0f2a5c",
-  beige: "#f0e6d2",
-  beigeDark: "#e8dcc4",
-  orange: "#f0a020",
-  yellow: "#fff3c4",
-  black: "#111111",
-  gray: "#6b7280",
-  blueText: "#1e40af",
+/** Form ảnh bảng Fanpage — bám 100% mẫu Đại lý vé số Phước Danh */
+const C = {
+  red: "#c8102e",
+  redDeep: "#b71c1c",
+  navy: "#0d3b7a",
+  navyDeep: "#0a2f5c",
+  beige: "#f5ecd8",
+  orange: "#f5a623",
+  yellow: "#ffe082",
+  black: "#0a0a0a",
+  gray: "#555555",
+  grayMid: "#666666",
+  blueText: "#0d47a1",
   white: "#ffffff",
-  border: "#222222",
+  border: "#1a1a1a",
+  dotted: "#888888",
 };
 
 type RowDef = {
@@ -60,7 +61,6 @@ function cellValue(station: Station, key: keyof Station): string | string[] {
 }
 
 function splitDate(date: string): { dayMonth: string; year: string } {
-  // "22/09/2026" → dayMonth 22/09, year 2026
   const parts = String(date || "").split("/");
   if (parts.length === 3) {
     return { dayMonth: `${parts[0]}/${parts[1]}`, year: parts[2] };
@@ -74,10 +74,10 @@ export function renderKqxsImage(opts: {
 }): ImageResponse {
   const { date, stations } = opts;
   const n = Math.max(stations.length, 1);
-  const labelW = 118;
-  const colW = Math.max(150, Math.min(200, Math.floor((900 - labelW) / n)));
-  const width = labelW + colW * n + 48;
-  const height = 1100;
+  const labelW = 132;
+  const colW = Math.max(155, Math.min(210, Math.floor((920 - labelW) / n)));
+  const width = labelW + colW * n + 40;
+  const height = 1140;
   const { dayMonth, year } = splitDate(date);
 
   return new ImageResponse(
@@ -88,27 +88,27 @@ export function renderKqxsImage(opts: {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: COLORS.white,
-          padding: "20px 22px 18px",
-          fontFamily: "Arial, sans-serif",
+          background: C.white,
+          padding: "18px 20px 16px",
+          fontFamily: "Arial, Helvetica, sans-serif",
         }}
       >
-        {/* ===== HEADER ===== */}
+        {/* HEADER */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 10,
+            marginBottom: 8,
           }}
         >
           <div
             style={{
               display: "flex",
-              fontSize: 34,
+              fontSize: 36,
               fontWeight: 800,
-              color: COLORS.red,
-              letterSpacing: 1,
+              color: C.red,
+              letterSpacing: 0.5,
             }}
           >
             ĐẠI LÝ VÉ SỐ PHƯỚC DANH
@@ -117,9 +117,9 @@ export function renderKqxsImage(opts: {
             style={{
               display: "flex",
               fontSize: 15,
-              fontWeight: 700,
-              color: COLORS.black,
-              marginTop: 4,
+              fontWeight: 800,
+              color: C.black,
+              marginTop: 3,
             }}
           >
             137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG
@@ -128,8 +128,9 @@ export function renderKqxsImage(opts: {
             style={{
               display: "flex",
               fontSize: 13,
+              fontWeight: 700,
               fontStyle: "italic",
-              color: COLORS.gray,
+              color: C.gray,
               marginTop: 2,
             }}
           >
@@ -137,13 +138,16 @@ export function renderKqxsImage(opts: {
           </div>
         </div>
 
-        {/* ===== DATE + HOTLINE BAR ===== */}
+        {/* DATE + HOTLINE */}
         <div
           style={{
             display: "flex",
             width: "100%",
-            marginBottom: 10,
-            border: `2px solid ${COLORS.navy}`,
+            marginBottom: 8,
+            borderTop: `2px solid ${C.navy}`,
+            borderBottom: `2px solid ${C.navy}`,
+            borderLeft: `2px solid ${C.navy}`,
+            borderRight: `2px solid ${C.navy}`,
           }}
         >
           <div
@@ -151,17 +155,17 @@ export function renderKqxsImage(opts: {
               display: "flex",
               flexDirection: "column",
               width: labelW,
-              background: COLORS.red,
-              color: COLORS.white,
+              background: C.redDeep,
+              color: C.white,
               alignItems: "center",
               justifyContent: "center",
-              padding: "8px 4px",
+              padding: "6px 4px",
             }}
           >
-            <div style={{ display: "flex", fontSize: 28, fontWeight: 800 }}>
+            <div style={{ display: "flex", fontSize: 30, fontWeight: 800 }}>
               {dayMonth}
             </div>
-            <div style={{ display: "flex", fontSize: 14, fontWeight: 600 }}>
+            <div style={{ display: "flex", fontSize: 14, fontWeight: 800 }}>
               {year}
             </div>
           </div>
@@ -171,17 +175,17 @@ export function renderKqxsImage(opts: {
               flex: 1,
               alignItems: "center",
               justifyContent: "center",
-              background: COLORS.white,
-              padding: "8px 10px",
-              gap: 8,
+              background: C.white,
+              padding: "8px 8px",
             }}
           >
             <div
               style={{
                 display: "flex",
-                fontSize: 16,
-                fontWeight: 700,
-                color: COLORS.blueText,
+                fontSize: 17,
+                fontWeight: 800,
+                color: C.blueText,
+                marginRight: 10,
               }}
             >
               ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI
@@ -189,9 +193,9 @@ export function renderKqxsImage(opts: {
             <div
               style={{
                 display: "flex",
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: 800,
-                color: COLORS.red,
+                color: C.red,
               }}
             >
               0919.494.566
@@ -199,20 +203,20 @@ export function renderKqxsImage(opts: {
           </div>
         </div>
 
-        {/* ===== TABLE HEADER ===== */}
+        {/* TABLE HEADER */}
         <div style={{ display: "flex", width: "100%" }}>
           <div
             style={{
               display: "flex",
               width: labelW,
-              background: COLORS.beige,
-              color: COLORS.black,
+              background: C.beige,
+              color: C.black,
               fontWeight: 800,
-              fontSize: 16,
+              fontSize: 17,
               alignItems: "center",
               justifyContent: "center",
               padding: "10px 4px",
-              border: `1px solid ${COLORS.border}`,
+              border: `1.5px solid ${C.border}`,
             }}
           >
             GIẢI
@@ -224,25 +228,25 @@ export function renderKqxsImage(opts: {
                 display: "flex",
                 flexDirection: "column",
                 flex: 1,
-                background: COLORS.navy,
-                color: COLORS.white,
+                background: C.navy,
+                color: C.white,
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "8px 4px",
-                border: `1px solid ${COLORS.border}`,
+                border: `1.5px solid ${C.border}`,
               }}
             >
-              <div style={{ display: "flex", fontSize: 18, fontWeight: 800 }}>
+              <div style={{ display: "flex", fontSize: 19, fontWeight: 800 }}>
                 {shortStationName(s.name)}
               </div>
-              <div style={{ display: "flex", fontSize: 12, fontWeight: 600, opacity: 0.95 }}>
+              <div style={{ display: "flex", fontSize: 13, fontWeight: 800 }}>
                 {s.code || ""}
               </div>
             </div>
           ))}
         </div>
 
-        {/* ===== DATA ROWS ===== */}
+        {/* DATA ROWS */}
         {ROWS.map((row) => {
           const jackpot = row.kind === "jackpot";
           const vals = stations.map((s) => cellValue(s, row.key));
@@ -250,56 +254,29 @@ export function renderKqxsImage(opts: {
             1,
             ...vals.map((v) => (Array.isArray(v) ? v.length : 1))
           );
+          const lineH = row.kind === "multi" ? 24 : 0;
           const minH =
             row.kind === "multi"
-              ? Math.max(52, maxLines * 22 + 10)
+              ? Math.max(row.note ? 168 : 58, maxLines * lineH + 12)
               : jackpot
-                ? 56
-                : 42;
+                ? 58
+                : 44;
 
           return (
             <div key={row.code} style={{ display: "flex", width: "100%" }}>
-              {/* Label column */}
+              {/* LABEL */}
               <div
                 style={{
                   display: "flex",
                   flexDirection: "row",
                   width: labelW,
-                  background: jackpot ? COLORS.orange : COLORS.beige,
-                  alignItems: "center",
+                  background: jackpot ? C.orange : C.beige,
+                  alignItems: "stretch",
                   justifyContent: "center",
-                  padding: "4px 2px",
-                  border: `1px solid ${COLORS.border}`,
+                  border: `1.5px solid ${C.border}`,
                   minHeight: minH,
                 }}
               >
-                {row.note ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      width: 14,
-                      marginRight: 2,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {"Dò lại kết quả Công ty sau 17h".split("").map((ch, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          display: "flex",
-                          fontSize: 7,
-                          color: COLORS.red,
-                          lineHeight: 1.05,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {ch === " " ? "·" : ch}
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
                 <div
                   style={{
                     display: "flex",
@@ -307,14 +284,15 @@ export function renderKqxsImage(opts: {
                     alignItems: "center",
                     justifyContent: "center",
                     flex: 1,
+                    padding: "4px 2px",
                   }}
                 >
                   <div
                     style={{
                       display: "flex",
-                      fontSize: jackpot ? 22 : 18,
+                      fontSize: jackpot ? 24 : 20,
                       fontWeight: 800,
-                      color: jackpot ? COLORS.red : COLORS.black,
+                      color: jackpot ? C.white : C.black,
                     }}
                   >
                     {row.code}
@@ -322,9 +300,9 @@ export function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: jackpot ? COLORS.redDark : COLORS.black,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: jackpot ? C.white : C.grayMid,
                     }}
                   >
                     {row.prize}
@@ -332,19 +310,57 @@ export function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      fontSize: 10,
-                      color: COLORS.gray,
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: jackpot ? C.white : C.gray,
                     }}
                   >
                     {row.digits}
                   </div>
                 </div>
+
+                {/* Chữ đỏ G.4: một dòng nằm ngang rồi xoay -90° (đọc từ dưới lên) — đúng form mẫu */}
+                {row.note ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      width: 26,
+                      minHeight: minH,
+                      borderLeft: `1.5px dotted ${C.dotted}`,
+                      borderRight: `1.5px dotted ${C.dotted}`,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
+                      background: C.beige,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        color: C.red,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        fontStyle: "italic",
+                        whiteSpace: "nowrap",
+                        transform: "rotate(-90deg)",
+                        width: minH - 10,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        letterSpacing: 0.3,
+                      }}
+                    >
+                      Dò lại kết quả Công ty sau 17h
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
-              {/* Number columns */}
+              {/* NUMBERS — tất cả in đậm */}
               {stations.map((s, si) => {
                 const val = vals[si];
                 const isMulti = Array.isArray(val);
+                const numSize =
+                  jackpot || row.kind === "red" ? 30 : isMulti ? 18 : 22;
                 return (
                   <div
                     key={`${row.code}-${s.code}`}
@@ -352,29 +368,29 @@ export function renderKqxsImage(opts: {
                       display: "flex",
                       flexDirection: "column",
                       flex: 1,
-                      background: jackpot ? COLORS.yellow : COLORS.white,
+                      background: jackpot ? C.yellow : C.white,
                       color:
-                        row.kind === "red" || jackpot
-                          ? COLORS.red
-                          : COLORS.black,
+                        row.kind === "red" || jackpot ? C.red : C.black,
                       fontWeight: 800,
-                      fontSize:
-                        jackpot || row.kind === "red"
-                          ? 28
-                          : isMulti
-                            ? 16
-                            : 20,
+                      fontSize: numSize,
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: "4px 2px",
-                      border: `1px solid ${COLORS.border}`,
+                      padding: "3px 2px",
+                      border: `1.5px solid ${C.border}`,
                       minHeight: minH,
-                      lineHeight: 1.2,
+                      lineHeight: 1.25,
                     }}
                   >
                     {isMulti
                       ? (val as string[]).map((num, i) => (
-                          <div key={i} style={{ display: "flex" }}>
+                          <div
+                            key={i}
+                            style={{
+                              display: "flex",
+                              fontWeight: 800,
+                              fontSize: numSize,
+                            }}
+                          >
                             {num}
                           </div>
                         ))
@@ -386,22 +402,35 @@ export function renderKqxsImage(opts: {
           );
         })}
 
-        {/* ===== FOOTER ===== */}
+        {/* FOOTER */}
         <div
           style={{
             display: "flex",
-            marginTop: 10,
+            marginTop: 8,
             width: "100%",
-            background: COLORS.navyDeep,
-            color: COLORS.white,
+            background: C.navyDeep,
+            color: C.white,
             alignItems: "center",
             justifyContent: "center",
             padding: "12px 10px",
             fontSize: 16,
-            fontWeight: 700,
+            fontWeight: 800,
           }}
         >
-          Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
+          <span style={{ display: "flex", fontWeight: 800 }}>
+            Xem Trực Tiếp và In Vé Dò tại{" "}
+          </span>
+          <span
+            style={{
+              display: "flex",
+              fontWeight: 800,
+              color: "#ffeb3b",
+              marginLeft: 4,
+              textDecoration: "underline",
+            }}
+          >
+            vesophuocdanh.vn
+          </span>
         </div>
       </div>
     ),
