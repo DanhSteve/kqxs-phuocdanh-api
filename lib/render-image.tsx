@@ -1,10 +1,11 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { ImageResponse } from "next/og";
+import type { CSSProperties } from "react";
 import type { Station } from "./xsmn";
 import { shortStationName } from "./xsmn";
 
-/** Form ảnh bảng Fanpage — bám 100% mẫu Đại lý vé số Phước Danh */
+/** Form ảnh bảng Fanpage — bám mẫu Phước Danh; toàn bộ chữ/số ExtraBold */
 const C = {
   red: "#c8102e",
   redDeep: "#b71c1c",
@@ -14,8 +15,8 @@ const C = {
   orange: "#f5a623",
   yellow: "#ffe082",
   black: "#0a0a0a",
-  gray: "#555555",
-  grayMid: "#666666",
+  gray: "#444444",
+  grayMid: "#555555",
   blueText: "#0d47a1",
   white: "#ffffff",
   border: "#1a1a1a",
@@ -24,39 +25,84 @@ const C = {
 
 const FONT = "Be Vietnam Pro";
 
+/** Nhóm cỡ chữ */
+const T = {
+  title: 36,
+  address: 16,
+  region: 14,
+  dateBig: 30,
+  dateYear: 16,
+  slogan: 17,
+  phone: 24,
+  giai: 18,
+  station: 19,
+  ticket: 13,
+  prizeCode: 20,
+  prizeMeta: 13,
+  note: 13,
+  footer: 16,
+} as const;
+
+/** Nhóm cỡ số theo số chữ số (đồng bộ trong nhóm) */
+const N = {
+  d2: 32, // G.8
+  d3: 26, // G.7
+  d4: 22, // G.6 + G.5
+  d5: 20, // G.4 + G.3 + G.2 + G.1
+  d6: 32, // ĐB
+} as const;
+
 type RowDef = {
   code: string;
   prize: string;
   digits: string;
   key: keyof Station;
   kind: "red" | "num" | "multi" | "jackpot";
+  digitGroup: 2 | 3 | 4 | 5 | 6;
   note?: boolean;
 };
 
 const ROWS: RowDef[] = [
-  { code: "G.8", prize: "100N", digits: "(2 số)", key: "g8", kind: "red" },
-  { code: "G.7", prize: "200N", digits: "(3 số)", key: "g7", kind: "num" },
-  { code: "G.6", prize: "400N", digits: "(4 số)", key: "g6", kind: "multi" },
-  { code: "G.5", prize: "1TR", digits: "(4 số)", key: "g5", kind: "num" },
+  { code: "G.8", prize: "100N", digits: "(2 số)", key: "g8", kind: "red", digitGroup: 2 },
+  { code: "G.7", prize: "200N", digits: "(3 số)", key: "g7", kind: "num", digitGroup: 3 },
+  { code: "G.6", prize: "400N", digits: "(4 số)", key: "g6", kind: "multi", digitGroup: 4 },
+  { code: "G.5", prize: "1TR", digits: "(4 số)", key: "g5", kind: "num", digitGroup: 4 },
   {
     code: "G.4",
     prize: "3TR",
     digits: "(5 số)",
     key: "g4",
     kind: "multi",
+    digitGroup: 5,
     note: true,
   },
-  { code: "G.3", prize: "10TR", digits: "(5 số)", key: "g3", kind: "multi" },
-  { code: "G.2", prize: "15TR", digits: "(5 số)", key: "g2", kind: "num" },
-  { code: "G.1", prize: "30TR", digits: "(5 số)", key: "g1", kind: "num" },
+  { code: "G.3", prize: "10TR", digits: "(5 số)", key: "g3", kind: "multi", digitGroup: 5 },
+  { code: "G.2", prize: "15TR", digits: "(5 số)", key: "g2", kind: "num", digitGroup: 5 },
+  { code: "G.1", prize: "30TR", digits: "(5 số)", key: "g1", kind: "num", digitGroup: 5 },
   {
     code: "ĐB",
     prize: "2 TỶ",
     digits: "(6 số)",
     key: "gdb",
     kind: "jackpot",
+    digitGroup: 6,
   },
 ];
+
+function numSize(group: RowDef["digitGroup"]): number {
+  switch (group) {
+    case 2:
+      return N.d2;
+    case 3:
+      return N.d3;
+    case 4:
+      return N.d4;
+    case 5:
+      return N.d5;
+    case 6:
+      return N.d6;
+  }
+}
 
 function cellValue(station: Station, key: keyof Station): string | string[] {
   const v = station[key];
@@ -74,38 +120,22 @@ function splitDate(date: string): { dayMonth: string; year: string } {
 
 function loadFonts() {
   const dir = join(process.cwd(), "public", "fonts");
-  const latin800 = readFileSync(join(dir, "latin-800.ttf"));
-  const viet800 = readFileSync(join(dir, "viet-800.ttf"));
-  const latin700i = readFileSync(join(dir, "latin-700-italic.ttf"));
-  const viet700i = readFileSync(join(dir, "viet-700-italic.ttf"));
+  const files = [
+    ["latin-800.ttf", 800, "normal"],
+    ["viet-800.ttf", 800, "normal"],
+    ["latin-800-italic.ttf", 800, "italic"],
+    ["viet-800-italic.ttf", 800, "italic"],
+  ] as const;
 
-  return [
-    {
-      name: FONT,
-      data: latin800,
-      weight: 800 as const,
-      style: "normal" as const,
-    },
-    {
-      name: FONT,
-      data: viet800,
-      weight: 800 as const,
-      style: "normal" as const,
-    },
-    {
-      name: FONT,
-      data: latin700i,
-      weight: 700 as const,
-      style: "italic" as const,
-    },
-    {
-      name: FONT,
-      data: viet700i,
-      weight: 700 as const,
-      style: "italic" as const,
-    },
-  ];
+  return files.map(([file, weight, style]) => ({
+    name: FONT,
+    data: readFileSync(join(dir, file)),
+    weight: weight as 800,
+    style: style as "normal" | "italic",
+  }));
 }
+
+const bold: CSSProperties = { fontWeight: 800, fontFamily: FONT };
 
 export async function renderKqxsImage(opts: {
   date: string;
@@ -113,10 +143,10 @@ export async function renderKqxsImage(opts: {
 }): Promise<ImageResponse> {
   const { date, stations } = opts;
   const n = Math.max(stations.length, 1);
-  const labelW = 132;
-  const colW = Math.max(155, Math.min(210, Math.floor((920 - labelW) / n)));
+  const labelW = 136;
+  const colW = Math.max(160, Math.min(210, Math.floor((940 - labelW) / n)));
   const width = labelW + colW * n + 40;
-  const height = 1140;
+  const height = 1180;
   const { dayMonth, year } = splitDate(date);
   const fonts = loadFonts();
 
@@ -146,8 +176,8 @@ export async function renderKqxsImage(opts: {
           <div
             style={{
               display: "flex",
-              fontSize: 36,
-              fontWeight: 800,
+              fontSize: T.title,
+              ...bold,
               color: C.red,
               letterSpacing: 0.5,
             }}
@@ -157,10 +187,10 @@ export async function renderKqxsImage(opts: {
           <div
             style={{
               display: "flex",
-              fontSize: 15,
-              fontWeight: 800,
+              fontSize: T.address,
+              ...bold,
               color: C.black,
-              marginTop: 3,
+              marginTop: 4,
             }}
           >
             137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG
@@ -168,8 +198,9 @@ export async function renderKqxsImage(opts: {
           <div
             style={{
               display: "flex",
-              fontSize: 13,
-              fontWeight: 700,
+              fontSize: T.region,
+              fontWeight: 800,
+              fontFamily: FONT,
               fontStyle: "italic",
               color: C.gray,
               marginTop: 2,
@@ -185,10 +216,7 @@ export async function renderKqxsImage(opts: {
             display: "flex",
             width: "100%",
             marginBottom: 8,
-            borderTop: `2px solid ${C.navy}`,
-            borderBottom: `2px solid ${C.navy}`,
-            borderLeft: `2px solid ${C.navy}`,
-            borderRight: `2px solid ${C.navy}`,
+            border: `2px solid ${C.navy}`,
           }}
         >
           <div
@@ -203,10 +231,22 @@ export async function renderKqxsImage(opts: {
               padding: "6px 4px",
             }}
           >
-            <div style={{ display: "flex", fontSize: 30, fontWeight: 800 }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: T.dateBig,
+                ...bold,
+              }}
+            >
               {dayMonth}
             </div>
-            <div style={{ display: "flex", fontSize: 14, fontWeight: 800 }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: T.dateYear,
+                ...bold,
+              }}
+            >
               {year}
             </div>
           </div>
@@ -223,8 +263,8 @@ export async function renderKqxsImage(opts: {
             <div
               style={{
                 display: "flex",
-                fontSize: 17,
-                fontWeight: 800,
+                fontSize: T.slogan,
+                ...bold,
                 color: C.blueText,
                 marginRight: 10,
               }}
@@ -234,8 +274,8 @@ export async function renderKqxsImage(opts: {
             <div
               style={{
                 display: "flex",
-                fontSize: 24,
-                fontWeight: 800,
+                fontSize: T.phone,
+                ...bold,
                 color: C.red,
               }}
             >
@@ -252,8 +292,8 @@ export async function renderKqxsImage(opts: {
               width: labelW,
               background: C.beige,
               color: C.black,
-              fontWeight: 800,
-              fontSize: 17,
+              ...bold,
+              fontSize: T.giai,
               alignItems: "center",
               justifyContent: "center",
               padding: "10px 4px",
@@ -277,10 +317,22 @@ export async function renderKqxsImage(opts: {
                 border: `1.5px solid ${C.border}`,
               }}
             >
-              <div style={{ display: "flex", fontSize: 19, fontWeight: 800 }}>
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: T.station,
+                  ...bold,
+                }}
+              >
                 {shortStationName(s.name)}
               </div>
-              <div style={{ display: "flex", fontSize: 13, fontWeight: 800 }}>
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: T.ticket,
+                  ...bold,
+                }}
+              >
                 {s.code || ""}
               </div>
             </div>
@@ -295,13 +347,14 @@ export async function renderKqxsImage(opts: {
             1,
             ...vals.map((v) => (Array.isArray(v) ? v.length : 1))
           );
-          const lineH = row.kind === "multi" ? 24 : 0;
+          const size = numSize(row.digitGroup);
+          const lineH = Math.round(size * 1.2);
           const minH =
             row.kind === "multi"
-              ? Math.max(row.note ? 168 : 58, maxLines * lineH + 12)
+              ? Math.max(row.note ? 175 : 62, maxLines * lineH + 14)
               : jackpot
-                ? 58
-                : 44;
+                ? 62
+                : 48;
 
           return (
             <div key={row.code} style={{ display: "flex", width: "100%" }}>
@@ -330,8 +383,8 @@ export async function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      fontSize: jackpot ? 24 : 20,
-                      fontWeight: 800,
+                      fontSize: jackpot ? 22 : T.prizeCode,
+                      ...bold,
                       color: jackpot ? C.white : C.black,
                     }}
                   >
@@ -340,8 +393,8 @@ export async function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      fontSize: 12,
-                      fontWeight: 800,
+                      fontSize: T.prizeMeta,
+                      ...bold,
                       color: jackpot ? C.white : C.grayMid,
                     }}
                   >
@@ -350,8 +403,8 @@ export async function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      fontSize: 11,
-                      fontWeight: 800,
+                      fontSize: T.prizeMeta,
+                      ...bold,
                       color: jackpot ? C.white : C.gray,
                     }}
                   >
@@ -363,7 +416,7 @@ export async function renderKqxsImage(opts: {
                   <div
                     style={{
                       display: "flex",
-                      width: 26,
+                      width: 28,
                       minHeight: minH,
                       borderLeft: `1.5px dashed ${C.dotted}`,
                       borderRight: `1.5px dashed ${C.dotted}`,
@@ -377,15 +430,16 @@ export async function renderKqxsImage(opts: {
                       style={{
                         display: "flex",
                         color: C.red,
-                        fontSize: 12,
-                        fontWeight: 700,
+                        fontSize: T.note,
+                        fontWeight: 800,
+                        fontFamily: FONT,
                         fontStyle: "italic",
                         whiteSpace: "nowrap",
                         transform: "rotate(-90deg)",
                         width: minH - 10,
                         justifyContent: "center",
                         alignItems: "center",
-                        letterSpacing: 0.3,
+                        letterSpacing: 0.2,
                       }}
                     >
                       Dò lại kết quả Công ty sau 17h
@@ -397,8 +451,6 @@ export async function renderKqxsImage(opts: {
               {stations.map((s, si) => {
                 const val = vals[si];
                 const isMulti = Array.isArray(val);
-                const numSize =
-                  jackpot || row.kind === "red" ? 30 : isMulti ? 18 : 22;
                 return (
                   <div
                     key={`${row.code}-${s.code}`}
@@ -410,13 +462,14 @@ export async function renderKqxsImage(opts: {
                       color:
                         row.kind === "red" || jackpot ? C.red : C.black,
                       fontWeight: 800,
-                      fontSize: numSize,
+                      fontFamily: FONT,
+                      fontSize: size,
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: "3px 2px",
+                      padding: "4px 2px",
                       border: `1.5px solid ${C.border}`,
                       minHeight: minH,
-                      lineHeight: 1.25,
+                      lineHeight: 1.2,
                     }}
                   >
                     {isMulti
@@ -426,7 +479,8 @@ export async function renderKqxsImage(opts: {
                             style={{
                               display: "flex",
                               fontWeight: 800,
-                              fontSize: numSize,
+                              fontFamily: FONT,
+                              fontSize: size,
                             }}
                           >
                             {num}
@@ -450,8 +504,8 @@ export async function renderKqxsImage(opts: {
             alignItems: "center",
             justifyContent: "center",
             padding: "12px 10px",
-            fontSize: 16,
-            fontWeight: 800,
+            fontSize: T.footer,
+            ...bold,
           }}
         >
           Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
