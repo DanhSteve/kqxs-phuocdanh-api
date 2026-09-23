@@ -146,40 +146,84 @@ export function buildCaption(date: string, stations: Station[]): string {
   ].join("\n");
 }
 
-/** Caption cập nhật dần khi đang xổ (đăng / sửa bài text Fanpage) */
+/** Ô trống khi đang live → vòng tròn quay (Facebook hiển thị emoji) */
+const SPIN = "🔄";
+
+function liveCell(value: string, emptyWidth = 2): string {
+  const v = String(value || "").trim();
+  return v || SPIN;
+}
+
+function liveMulti(values: string[]): string {
+  if (!values.length) return SPIN;
+  return values.map((v) => v || SPIN).join("·");
+}
+
+/**
+ * Bảng chữ live — khung cấu trúc gần form Phước Danh
+ * (Fanpage không có CSS màu thật → dùng emoji + ký hiệu để phân tầng)
+ */
 export function buildLiveCaption(
   date: string,
   stations: Station[],
   stage: "waiting" | "live" | "completed"
 ): string {
-  const header =
+  const statusLine =
     stage === "completed"
-      ? `✅ [CHÍNH THỨC] KQXS MIỀN NAM ${date}`
+      ? `✅ ĐÃ ĐỦ GIẢI ĐẶC BIỆT — ${date}`
       : stage === "live"
-        ? `🔴 ĐANG XỔ TRỰC TIẾP — KQXS MN ${date}`
-        : `⏳ CHUẨN BỊ XỔ — KQXS MN ${date}`;
+        ? `🔴 ĐANG XỔ TRỰC TIẾP — ${date}`
+        : `⏳ CHUẨN BỊ XỔ — ${date}`;
 
-  const lines = stations.map((s) => {
-    const name = shortStationName(s.name);
-    const g8 = s.g8 || "…";
-    const g7 = s.g7 || "…";
-    const g1 = s.g1 || "…";
-    const gdb = s.gdb || "……";
-    return `${name} (${s.code || "—"})\nG8 ${g8} · G7 ${g7} · G1 ${g1} · ĐB ${gdb}`;
-  });
+  const names = stations.map((s) => shortStationName(s.name));
+  const codes = stations.map((s) => s.code || "—");
 
-  return [
-    header,
-    `⭐ Đại lý vé số PHƯỚC DANH`,
+  const row = (
+    label: string,
+    mark: string,
+    getter: (s: Station) => string
+  ): string => {
+    const cells = stations.map((s) => getter(s)).join(" │ ");
+    return `${mark}${label}│ ${cells}`;
+  };
+
+  const board = [
+    "╔══════════════════════════════╗",
+    "║ 🟥 ĐẠI LÝ VÉ SỐ PHƯỚC DANH  ║",
+    "║ 📍 137 LÊ LỢI, P. TRÀ VINH  ║",
+    "║    — VĨNH LONG · XSMN       ║",
+    "╚══════════════════════════════╝",
     "",
-    ...lines,
+    statusLine,
+    `🔵 ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI  🔴 0919.494.566`,
+    "",
+    `🏷 Đài: ${names.map((n, i) => `${n}(${codes[i]})`).join(" · ")}`,
+    "",
+    "——— BẢNG KẾT QUẢ (LIVE) ———",
+    `GIẢI     │ ${names.join(" │ ")}`,
+    "————————┼" + names.map(() => "——————").join("┼"),
+    row("G.8 100N (2)", "🔴 ", (s) => liveCell(s.g8)),
+    row("G.7 200N (3)", "⬛ ", (s) => liveCell(s.g7)),
+    row("G.6 400N (4)", "⬛ ", (s) => liveMulti(s.g6 || [])),
+    row("G.5 1TR  (4)", "⬛ ", (s) => liveCell(s.g5)),
+    row("G.4 3TR  (5)", "⬛ ", (s) => liveMulti(s.g4 || [])),
+    "         └ dò lại KQ Công ty sau 17h",
+    row("G.3 10TR (5)", "⬛ ", (s) => liveMulti(s.g3 || [])),
+    row("G.2 15TR (5)", "⬛ ", (s) => liveCell(s.g2)),
+    row("G.1 30TR (5)", "⬛ ", (s) => liveCell(s.g1)),
+    row("ĐB  2TỶ  (6)", "🟡🔴 ", (s) => liveCell(s.gdb, 6)),
+    "",
+    `${SPIN} = ô chưa có số (đang chờ)`,
+    "🔴 = giải nổi bật (G.8 / ĐB) · 🟡 = hàng đặc biệt",
     "",
     stage === "completed"
-      ? "Ảnh bảng đầy đủ sẽ được đăng kèm / đã cập nhật."
-      : "Đang cập nhật từng giải từ nguồn chính thức…",
-    `☎️ ${HOTLINE}`,
+      ? "✅ Đã đủ ĐB — bài ẢNH bảng form chuẩn sẽ đăng ngay."
+      : "📡 Cập nhật tự động từ nguồn chính thức…",
+    `☎️ Hotline: ${HOTLINE}`,
     `🌐 ${WEBSITE}`,
-  ].join("\n");
+  ];
+
+  return board.join("\n");
 }
 
 function buildProgressKey(stations: Station[]): string {
