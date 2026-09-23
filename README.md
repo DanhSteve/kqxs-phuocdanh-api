@@ -29,6 +29,8 @@ Cung cấp dữ liệu ổn định để **n8n đăng bài lên Fanpage Phướ
   "completed": true,
   "stations": [],
   "caption": "...",
+  "captionAfterLive": "...",
+  "liveCaption": "...",
   "imageUrl": "https://kqxs-phuocdanh-api.vercel.app/api/kqxs/image?date=2026-09-19"
 }
 ```
