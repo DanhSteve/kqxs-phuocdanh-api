@@ -67,6 +67,8 @@ Phần còn thiếu: **n8n tạo Live + encoder đẩy RTMPS**.
 
 ## CÂU LỆNH DÁN VÀO CHAT n8n (Facebook Live trên tường)
 
+> Copy **toàn bộ** khối bên dưới (từ “Tạo giúp tôi…” đến hết “Hãy tạo đủ node…”) — gồm cả **A5, ENCODER, Workflow B, QUY TẮC, CHẠY THỬ**.
+
 ```
 Tạo giúp tôi bộ workflow n8n chuẩn vàng tên:
 "Phước Danh – LIVE Video trên Fanpage (giữ VOD sau xổ)"
@@ -148,7 +150,7 @@ NODE A3 — HTTP POST tạo Live Video trên Fanpage
   access_token = {{PAGE_TOKEN}}
 
 NODE A4 — Code lưu stream (Run Once for All Items)
-```js
+---CODE_A4---
 const store = $getWorkflowStaticData('global');
 const live = $input.first().json;
 const data = $('NODE A2').first().json; // đổi tên node cho khớp
@@ -171,7 +173,7 @@ return [{
     instruction: 'OBS: Browser Source = liveBoardUrl; Stream = rtmpServer + streamKey'
   }
 }];
-```
+---HẾT_CODE_A4---
 
 NODE A5 — (Tuỳ chọn) Telegram / Email / Sticky output
 Gửi cho kỹ thuật: liveBoardUrl + rtmpServer + streamKey để bật OBS/ffmpeg ngay.
@@ -201,17 +203,17 @@ NODE B1 — Schedule mỗi 10–15 giây (16:15–16:40 giờ VN)
 (/live tự poll; B chỉ chờ đủ ĐB)
 
 NODE B2 — Code khung giờ 16:15–16:40 Asia/Ho_Chi_Minh
-```js
+---CODE_B2---
 const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
 const m = now.getHours() * 60 + now.getMinutes();
 if (m < 16 * 60 + 15 || m > 16 * 60 + 40) return [];
 return [{ json: { ok: true } }];
-```
+---HẾT_CODE_B2---
 
 NODE B3 — HTTP GET https://kqxs-phuocdanh-api.vercel.app/api/kqxs/today
 
 NODE B4 — Code chỉ tiếp khi completed && chưa finalize VOD
-```js
+---CODE_B4---
 const data = $input.first().json;
 const store = $getWorkflowStaticData('global');
 if (!data.completed || store.vodFinalized) return [];
@@ -223,7 +225,7 @@ return [{
     captionAfterLive: data.captionAfterLive
   }
 }];
-```
+---HẾT_CODE_B4---
 
 NODE B5 — HTTP POST kết thúc Live Video (GIỮ video trên tường)
 - URL: https://graph.facebook.com/v19.0/{{ $json.liveVideoId }}
@@ -248,11 +250,11 @@ NODE B7 — (TUỲ CHỌN) HTTP POST đăng ảnh bảng form — chỉ nếu te
 Mặc định: BỎ NODE B7 — chỉ giữ VOD + captionAfterLive.
 
 NODE B8 — Code
-```js
+---CODE_B8---
 const store = $getWorkflowStaticData('global');
 store.vodFinalized = true;
 return [{ json: { done: true, keptVod: true } }];
-```
+---HẾT_CODE_B8---
 
 Sticky B:
 "Đủ ĐB → tắt LIVE → GIỮ video đã quay → description = captionAfterLive (không ĐB, không bảng live). Ảnh form = tuỳ chọn."
