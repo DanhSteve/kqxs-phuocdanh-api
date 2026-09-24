@@ -5,7 +5,10 @@ export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: corsHeaders() });
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders({ noStore: true }),
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -31,13 +34,13 @@ export async function GET(req: NextRequest) {
           liveBoardUrl
         ),
       },
-      { status: 200, headers: corsHeaders() }
+      { status: 200, headers: corsHeaders({ noStore: true }) }
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { error: message, completed: false },
-      { status: 502, headers: corsHeaders() }
+      { status: 502, headers: corsHeaders({ noStore: true }) }
     );
   }
 }

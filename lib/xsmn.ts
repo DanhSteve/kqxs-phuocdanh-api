@@ -302,7 +302,8 @@ export async function fetchXsmn(dateIso?: string | null): Promise<{
       "User-Agent":
         "PhuocDanh-KQXS-API/1.0 (+https://github.com/DanhSteve/kqxs-phuocdanh-api)",
     },
-    next: { revalidate: 30 },
+    // Live /today cần sát nguồn — không cache Next/CDN
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -348,11 +349,13 @@ export async function fetchXsmn(dateIso?: string | null): Promise<{
   };
 }
 
-export function corsHeaders(): HeadersInit {
+export function corsHeaders(opts?: { noStore?: boolean }): HeadersInit {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Accept",
-    "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+    "Cache-Control": opts?.noStore
+      ? "no-store, no-cache, must-revalidate, max-age=0"
+      : "public, s-maxage=30, stale-while-revalidate=60",
   };
 }
