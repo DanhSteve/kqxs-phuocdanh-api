@@ -309,68 +309,72 @@ code,
   color: var(--ink);
 }
 
-/* ===== LIVE BOARD (/live) — vòng quay CSS thật + hiện từng chữ số ===== */
+/* ===== LIVE BOARD (/live) — số to đậm chuyên nghiệp (stream 720p) ===== */
 .live-shell {
-  max-width: 920px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 1rem 0.75rem 2rem;
+  padding: 0.85rem 0.65rem 1.5rem;
   background: #fff;
   color: #111;
   min-height: 100vh;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .live-head {
   text-align: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
 }
 
 .live-head h1 {
   margin: 0;
-  font-size: clamp(1.35rem, 4vw, 2rem);
-  font-weight: 800;
+  font-size: clamp(1.55rem, 4.2vw, 2.25rem);
+  font-weight: 900;
   color: #c8102e;
   font-family: "Be Vietnam Pro", sans-serif;
+  letter-spacing: 0.01em;
 }
 
 .live-addr {
-  margin: 0.35rem 0 0;
-  font-weight: 700;
-  font-size: 0.95rem;
+  margin: 0.4rem 0 0;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
 }
 
 .live-region {
-  margin: 0.2rem 0 0;
+  margin: 0.25rem 0 0;
   font-style: italic;
-  font-weight: 600;
-  color: #555;
-  font-size: 0.85rem;
+  font-weight: 700;
+  color: #444;
+  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
 }
 
 .live-bar {
   display: flex;
-  border: 2px solid #0d3b7a;
-  margin-bottom: 0.65rem;
+  border: 2.5px solid #0d3b7a;
+  margin-bottom: 0.55rem;
 }
 
 .live-date {
-  width: 5.5rem;
+  width: 6.25rem;
   background: #b71c1c;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
-  font-weight: 800;
+  padding: 0.45rem 0.35rem;
+  font-weight: 900;
 }
 
 .live-date strong {
-  font-size: 1.35rem;
-  line-height: 1.1;
+  font-size: clamp(1.45rem, 3vw, 1.75rem);
+  line-height: 1.05;
 }
 
 .live-date span {
-  font-size: 0.85rem;
+  font-size: 1rem;
+  font-weight: 800;
 }
 
 .live-hotline {
@@ -378,23 +382,24 @@ code,
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
-  padding: 0.5rem;
+  padding: 0.55rem 0.65rem;
   font-weight: 800;
   color: #0d47a1;
-  font-size: 0.95rem;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
 }
 
 .live-hotline em {
   color: #c8102e;
   font-style: normal;
-  font-size: 1.15rem;
+  font-weight: 900;
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
 }
 
 .live-table-wrap {
   overflow-x: auto;
-  border: 1.5px solid #1a1a1a;
+  border: 2px solid #1a1a1a;
 }
 
 .live-table {
@@ -406,8 +411,8 @@ code,
 
 .live-table th,
 .live-table td {
-  border: 1px solid #222;
-  padding: 0.4rem 0.25rem;
+  border: 1.5px solid #222;
+  padding: 0.5rem 0.3rem;
   text-align: center;
   vertical-align: middle;
 }
@@ -415,32 +420,36 @@ code,
 .live-table thead th {
   background: #0d3b7a;
   color: #fff;
-  font-weight: 800;
+  font-weight: 900;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  padding: 0.55rem 0.3rem;
 }
 
 .live-table thead th small {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+  font-weight: 800;
   opacity: 0.95;
+  margin-top: 0.1rem;
 }
 
 .live-table .col-giai {
   background: #f5ecd8;
-  width: 6.5rem;
-  font-weight: 800;
+  width: 7.25rem;
+  font-weight: 900;
 }
 
 .live-table .col-giai strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: clamp(1.15rem, 2.4vw, 1.35rem);
+  font-weight: 900;
 }
 
 .live-table .col-giai small {
   display: block;
-  font-size: 0.72rem;
-  color: #444;
-  font-weight: 700;
+  font-size: clamp(0.78rem, 1.5vw, 0.9rem);
+  color: #333;
+  font-weight: 800;
 }
 
 .live-table .is-jackpot {
@@ -459,19 +468,24 @@ code,
 .live-stack {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.22rem;
   align-items: center;
+  justify-content: center;
 }
 
 .live-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.08rem;
+  gap: 0.06rem;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
   font-weight: 900;
-  font-size: 1.15rem;
-  letter-spacing: 0.04em;
-  min-height: 1.4rem;
+  font-size: clamp(1.45rem, 2.9vw, 1.85rem);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  min-height: 1.65rem;
+  color: #111;
+  -webkit-text-stroke: 0.2px currentColor;
 }
 
 .live-num.is-red {
@@ -480,14 +494,15 @@ code,
 
 .live-digit {
   display: inline-block;
+  font-weight: 900;
 }
 
 /* Vòng tròn quay THẬT (CSS animation) */
 .live-spin {
   display: inline-block;
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 2.5px solid rgba(0, 0, 0, 0.15);
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(0, 0, 0, 0.14);
   border-top-color: #c8102e;
   border-radius: 50%;
   animation: live-spin-rotate 0.65s linear infinite;
@@ -506,20 +521,27 @@ code,
 }
 
 .live-foot {
-  margin-top: 0.75rem;
+  margin-top: 0.65rem;
   background: #0a2f5c;
   color: #fff;
   text-align: center;
-  padding: 0.75rem;
-  font-weight: 800;
-  font-size: 0.95rem;
+  padding: 0.85rem;
+  font-weight: 900;
+  font-size: clamp(1rem, 2vw, 1.15rem);
 }
 
 @media (max-width: 640px) {
   .live-num {
-    font-size: 0.95rem;
+    font-size: 1.2rem;
+  }
+  .live-spin {
+    width: 1rem;
+    height: 1rem;
   }
   .live-table .col-giai {
-    width: 4.8rem;
+    width: 5.4rem;
+  }
+  .live-date {
+    width: 5.25rem;
   }
 }
