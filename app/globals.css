@@ -437,6 +437,12 @@ code,
   background: #f5ecd8;
   width: 7.25rem;
   font-weight: 900;
+  color: #111;
+}
+
+.live-table thead th.col-giai {
+  background: #f5ecd8;
+  color: #111;
 }
 
 .live-table .col-giai strong {
