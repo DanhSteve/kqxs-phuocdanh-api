@@ -591,6 +591,19 @@ code,
   background: #fff;
 }
 
+.live-music-unlock {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  border: 0;
+  background: rgba(10, 47, 92, 0.88);
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  cursor: pointer;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
 @media (max-width: 640px) {
   .live-region {
     font-size: 1.55rem;

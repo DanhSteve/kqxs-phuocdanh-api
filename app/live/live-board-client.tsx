@@ -128,9 +128,35 @@ export default function LiveBoardClient({
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [musicOn, setMusicOn] = useState(true);
+  const [needTap, setNeedTap] = useState(false);
   const revealRef = useRef<RevealMap>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [, bump] = useState(0);
+
+  const musicUrl =
+    data?.musicUrl ||
+    (typeof window !== "undefined"
+      ? `${window.location.origin}/audio/xo-so-live-bed.wav`
+      : "/audio/xo-so-live-bed.wav");
+
+  const tryPlay = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return false;
+    try {
+      audio.loop = true;
+      audio.volume = 0.6;
+      if (!audio.src || !audio.src.includes("xo-so-live-bed")) {
+        audio.src = musicUrl;
+        audio.load();
+      }
+      await audio.play();
+      setNeedTap(false);
+      return true;
+    } catch {
+      setNeedTap(true);
+      return false;
+    }
+  }, [musicUrl]);
 
   const syncReveal = useCallback((stations: Station[]) => {
     const map = revealRef.current;
@@ -200,26 +226,16 @@ export default function LiveBoardClient({
     };
   }, [apiPath, syncReveal]);
 
-  // Nhạc nền: loop khi đang live; dừng khi completed hoặc tắt tay
+  // Nhạc nền: luôn loop khi musicOn (kể cả sau completed — để test/nghe được)
   useEffect(() => {
     const audio = audioRef.current;
-    const url = data?.musicUrl;
-    if (!audio || !url) return;
-    if (audio.src !== url) {
-      audio.src = url;
-      audio.load();
-    }
-    const shouldPlay = musicOn && data?.stage !== "completed";
-    if (shouldPlay) {
-      audio.loop = true;
-      audio.volume = 0.55;
-      void audio.play().catch(() => {
-        /* autoplay blocked until encoder/user gesture */
-      });
+    if (!audio) return;
+    if (musicOn) {
+      void tryPlay();
     } else {
       audio.pause();
     }
-  }, [data?.musicUrl, data?.stage, musicOn]);
+  }, [musicOn, musicUrl, tryPlay]);
 
   const stations = data?.stations || [];
   const map = revealRef.current;
@@ -231,7 +247,27 @@ export default function LiveBoardClient({
 
   return (
     <div className="live-shell">
-      <audio ref={audioRef} loop playsInline preload="auto" aria-hidden />
+      <audio
+        ref={audioRef}
+        loop
+        playsInline
+        preload="auto"
+        src="/audio/xo-so-live-bed.wav"
+        aria-hidden
+      />
+
+      {needTap && musicOn ? (
+        <button
+          type="button"
+          className="live-music-unlock"
+          onClick={() => {
+            setMusicOn(true);
+            void tryPlay();
+          }}
+        >
+          Bấm để bật nhạc nền
+        </button>
+      ) : null}
 
       <header className="live-head">
         <p className="live-region">{regionLabel}</p>
