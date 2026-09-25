@@ -1,0 +1,5 @@
+Title: xo-so-live-bed.wav
+Type: Original procedural audio bed (drone + countdown tick)
+License: Created for Phước Danh project — free to use on Fanpage Live; not third-party copyrighted music
+Note: Not official XSKT/HTV lottery theme. Mixkit/Pixabay CDN downloads were blocked (403); this original bed provides a legal suspense/countdown feel.
+File: /audio/xo-so-live-bed.wav

@@ -572,6 +572,25 @@ code,
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
+.live-music-toggle {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 20;
+  border: 2px solid #0d3b7a;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0d3b7a;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+.live-music-toggle:hover {
+  background: #fff;
+}
+
 @media (max-width: 640px) {
   .live-region {
     font-size: 1.55rem;

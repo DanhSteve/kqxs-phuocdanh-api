@@ -22,6 +22,7 @@ type Payload = {
   completed?: boolean;
   stage?: string;
   stations?: Station[];
+  musicUrl?: string;
 };
 
 const ROWS: {
@@ -126,7 +127,9 @@ export default function LiveBoardClient({
 }) {
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [musicOn, setMusicOn] = useState(true);
   const revealRef = useRef<RevealMap>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [, bump] = useState(0);
 
   const syncReveal = useCallback((stations: Station[]) => {
@@ -197,6 +200,27 @@ export default function LiveBoardClient({
     };
   }, [apiPath, syncReveal]);
 
+  // Nhạc nền: loop khi đang live; dừng khi completed hoặc tắt tay
+  useEffect(() => {
+    const audio = audioRef.current;
+    const url = data?.musicUrl;
+    if (!audio || !url) return;
+    if (audio.src !== url) {
+      audio.src = url;
+      audio.load();
+    }
+    const shouldPlay = musicOn && data?.stage !== "completed";
+    if (shouldPlay) {
+      audio.loop = true;
+      audio.volume = 0.55;
+      void audio.play().catch(() => {
+        /* autoplay blocked until encoder/user gesture */
+      });
+    } else {
+      audio.pause();
+    }
+  }, [data?.musicUrl, data?.stage, musicOn]);
+
   const stations = data?.stations || [];
   const map = revealRef.current;
 
@@ -207,6 +231,8 @@ export default function LiveBoardClient({
 
   return (
     <div className="live-shell">
+      <audio ref={audioRef} loop playsInline preload="auto" aria-hidden />
+
       <header className="live-head">
         <p className="live-region">{regionLabel}</p>
       </header>
@@ -286,6 +312,15 @@ export default function LiveBoardClient({
       <footer className="live-foot">
         Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
       </footer>
+
+      <button
+        type="button"
+        className="live-music-toggle"
+        onClick={() => setMusicOn((v) => !v)}
+        aria-pressed={musicOn}
+      >
+        {musicOn ? "Tắt nhạc" : "Bật nhạc"}
+      </button>
     </div>
   );
 }

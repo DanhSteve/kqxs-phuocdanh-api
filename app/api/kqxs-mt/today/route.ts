@@ -25,12 +25,14 @@ export async function GET(req: NextRequest) {
       ? `${origin}/api/kqxs/image?date=${payload.dateIso}`
       : `${origin}/api/kqxs/image`;
     const liveBoardUrl = `${origin}/live-mt`;
+    const musicUrl = `${origin}/audio/xo-so-live-bed.wav`;
 
     return NextResponse.json(
       {
         ...payload,
         imageUrl,
         liveBoardUrl,
+        musicUrl,
         liveCaption: buildLiveCaption(
           payload.date,
           payload.stations,

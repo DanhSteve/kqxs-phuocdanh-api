@@ -48,6 +48,8 @@ export type KqxsPayload = {
   liveCaption: string;
   /** Trang HTML vòng quay CSS thật + hiện từng chữ số */
   liveBoardUrl?: string;
+  /** Nhạc nền live (royalty-safe) */
+  musicUrl?: string;
   imageUrl: string;
   source: string;
   serverTime?: string;
