@@ -208,8 +208,6 @@ export default function LiveBoardClient({
   return (
     <div className="live-shell">
       <header className="live-head">
-        <h1>ĐẠI LÝ VÉ SỐ PHƯỚC DANH</h1>
-        <p className="live-addr">137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG</p>
         <p className="live-region">{regionLabel}</p>
       </header>
 

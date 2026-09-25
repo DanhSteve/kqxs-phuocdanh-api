@@ -323,30 +323,23 @@ code,
 
 .live-head {
   text-align: center;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 
-.live-head h1 {
-  margin: 0;
-  font-size: clamp(1.55rem, 3.8vw, 2.2rem);
-  font-weight: 900;
-  color: #c8102e;
-  font-family: "Be Vietnam Pro", sans-serif;
-  letter-spacing: 0.01em;
-}
-
+.live-head h1,
 .live-addr {
-  margin: 0.25rem 0 0;
-  font-weight: 800;
-  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  display: none;
 }
 
 .live-region {
-  margin: 0.15rem 0 0;
-  font-style: italic;
-  font-weight: 800;
-  color: #333;
-  font-size: clamp(1rem, 2vw, 1.2rem);
+  margin: 0;
+  font-style: normal;
+  font-weight: 900;
+  color: #b71c1c;
+  font-size: clamp(2.4rem, 6.5vw, 4rem);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
 .live-error {
@@ -495,20 +488,20 @@ code,
   gap: 0.04rem;
   font-family: "Be Vietnam Pro", system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(2.05rem, 4vw, 2.75rem);
+  font-size: clamp(2.1rem, 4.2vw, 2.9rem);
   letter-spacing: 0.01em;
   line-height: 1.02;
-  min-height: 2.2rem;
+  min-height: 2.3rem;
   color: #111;
-  -webkit-text-stroke: 0.35px currentColor;
+  -webkit-text-stroke: 0.4px currentColor;
 }
 
-/* G.8 / ĐB đỏ — to hơn nữa như mẫu */
+/* G.8 / ĐB đỏ — ~gấp đôi số đen các giải khác */
 .live-num.is-red {
   color: #c8102e;
-  font-size: clamp(2.45rem, 5vw, 3.35rem);
-  min-height: 2.6rem;
-  -webkit-text-stroke: 0.4px #c8102e;
+  font-size: clamp(4.2rem, 8.4vw, 5.8rem);
+  min-height: 4.4rem;
+  -webkit-text-stroke: 0.55px #c8102e;
 }
 
 .live-digit {
@@ -518,8 +511,8 @@ code,
 
 .live-spin {
   display: inline-block;
-  width: 1.65rem;
-  height: 1.65rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border: 4px solid rgba(0, 0, 0, 0.14);
   border-top-color: #c8102e;
   border-radius: 50%;
@@ -528,8 +521,9 @@ code,
 }
 
 .live-num.is-red .live-spin {
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-width: 5px;
   border-top-color: #c8102e;
   border-left-color: rgba(200, 16, 46, 0.25);
 }
@@ -551,19 +545,23 @@ code,
 }
 
 @media (max-width: 640px) {
+  .live-region {
+    font-size: 1.75rem;
+  }
   .live-num {
-    font-size: 1.65rem;
+    font-size: 1.7rem;
   }
   .live-num.is-red {
-    font-size: 2rem;
+    font-size: 3.2rem;
+    min-height: 3.2rem;
   }
   .live-spin {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.3rem;
+    height: 1.3rem;
   }
   .live-num.is-red .live-spin {
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 2.4rem;
+    height: 2.4rem;
   }
   .live-table .col-giai {
     width: 5.6rem;
