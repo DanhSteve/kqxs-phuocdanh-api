@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       ? `${origin}/api/kqxs/image?date=${payload.dateIso}`
       : `${origin}/api/kqxs/image`;
     const liveBoardUrl = `${origin}/live-mt`;
-    const musicUrl = `${origin}/audio/xo-so-live-bed.wav`;
+    const musicUrl = `${origin}/audio/xo-so-live-bed.mp3`;
 
     return NextResponse.json(
       {

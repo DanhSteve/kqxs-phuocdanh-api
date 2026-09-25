@@ -136,15 +136,15 @@ export default function LiveBoardClient({
   const musicUrl =
     data?.musicUrl ||
     (typeof window !== "undefined"
-      ? `${window.location.origin}/audio/xo-so-live-bed.wav`
-      : "/audio/xo-so-live-bed.wav");
+      ? `${window.location.origin}/audio/xo-so-live-bed.mp3`
+      : "/audio/xo-so-live-bed.mp3");
 
   const tryPlay = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return false;
     try {
       audio.loop = true;
-      audio.volume = 0.6;
+      audio.volume = 0.55;
       if (!audio.src || !audio.src.includes("xo-so-live-bed")) {
         audio.src = musicUrl;
         audio.load();
@@ -252,7 +252,7 @@ export default function LiveBoardClient({
         loop
         playsInline
         preload="auto"
-        src="/audio/xo-so-live-bed.wav"
+        src="/audio/xo-so-live-bed.mp3"
         aria-hidden
       />
 
@@ -347,6 +347,9 @@ export default function LiveBoardClient({
 
       <footer className="live-foot">
         Xem Trực Tiếp và In Vé Dò tại vesophuocdanh.vn
+        <span className="live-music-credit">
+          Music: Kevin MacLeod (incompetech.com)
+        </span>
       </footer>
 
       <button

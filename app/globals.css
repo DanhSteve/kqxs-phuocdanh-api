@@ -572,6 +572,15 @@ code,
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
+.live-music-credit {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+}
+
 .live-music-toggle {
   position: fixed;
   right: 0.75rem;

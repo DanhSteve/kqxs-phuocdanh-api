@@ -1,5 +1,8 @@
-Title: xo-so-live-bed.wav
-Type: Original procedural audio bed (drone + countdown tick)
-License: Created for Phước Danh project — free to use on Fanpage Live; not third-party copyrighted music
-Note: Not official XSKT/HTV lottery theme. Mixkit/Pixabay CDN downloads were blocked (403); this original bed provides a legal suspense/countdown feel.
-File: /audio/xo-so-live-bed.wav
+Title: Lobby Time
+Artist: Kevin MacLeod (incompetech.com)
+License: Creative Commons Attribution 4.0 / royalty-free per incompetech terms (attribution required)
+Source: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Lobby%20Time.mp3
+Info: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100750
+Use: Fanpage Live bed — game-show / waiting-room vibe (not official XSKT theme)
+File: /audio/xo-so-live-bed.mp3
+Note: Pixabay CDN returned 403 from this environment; Melodia MIDI not available as pre-converted MP3. Incompetech CC track used instead (legal commercial use with attribution).
