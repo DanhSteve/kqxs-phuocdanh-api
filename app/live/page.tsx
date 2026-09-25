@@ -9,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function LivePage() {
-  return <LiveBoardClient />;
+  return (
+    <LiveBoardClient
+      apiPath="/api/kqxs/today"
+      regionLabel="XỔ SỐ MIỀN NAM"
+    />
+  );
 }

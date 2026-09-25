@@ -43,7 +43,7 @@ const ROWS: {
 ];
 
 function shortName(name: string): string {
-  const n = (name || "").toUpperCase();
+  const n = (name || "").toUpperCase().replace(/\s+/g, " ").trim();
   const map: Record<string, string> = {
     "ĐỒNG NAI": "Đ.NAI",
     "CẦN THƠ": "CẦN THƠ",
@@ -53,11 +53,28 @@ function shortName(name: string): string {
     "BẠC LIÊU": "B.LIÊU",
     "TP. HỒ CHÍ MINH": "TP.HCM",
     "HỒ CHÍ MINH": "TP.HCM",
+    "TÂY NINH": "T.NINH",
+    "AN GIANG": "A.GIANG",
+    "BÌNH THUẬN": "B.THUẬN",
+    "GIA LAI": "GIA LAI",
+    "NINH THUẬN": "N.THUẬN",
+    "ĐẮK LẮK": "Đ.LẮK",
+    "ĐẮK NÔNG": "Đ.NÔNG",
+    "KON TUM": "KON TUM",
+    "ĐÀ NẴNG": "Đ.NẴNG",
+    "THỪA THIÊN HUẾ": "HUẾ",
+    HUẾ: "HUẾ",
+    "QUẢNG NAM": "Q.NAM",
+    "QUẢNG NGÃI": "Q.NGÃI",
+    "BÌNH ĐỊNH": "B.ĐỊNH",
+    "PHÚ YÊN": "PHÚ YÊN",
+    "KHÁNH HÒA": "K.HÒA",
+    "QUẢNG TRỊ": "Q.TRỊ",
+    "QUẢNG BÌNH": "Q.BÌNH",
   };
   return map[n] || n.slice(0, 10);
 }
 
-/** Trạng thái hiện từng chữ số theo ô */
 type RevealMap = Record<string, { target: string; epoch: number; shown: number }>;
 
 function cellKey(si: number, rowKey: string, multiIdx?: number) {
@@ -100,7 +117,13 @@ function DigitCell({
   );
 }
 
-export default function LiveBoardClient() {
+export default function LiveBoardClient({
+  apiPath = "/api/kqxs/today",
+  regionLabel = "XỔ SỐ MIỀN NAM",
+}: {
+  apiPath?: string;
+  regionLabel?: string;
+}) {
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const revealRef = useRef<RevealMap>({});
@@ -134,7 +157,6 @@ export default function LiveBoardClient() {
     });
   }, []);
 
-  // Tiến trình hiện từng chữ số mỗi 350ms
   useEffect(() => {
     const id = window.setInterval(() => {
       const map = revealRef.current;
@@ -151,12 +173,11 @@ export default function LiveBoardClient() {
     return () => window.clearInterval(id);
   }, []);
 
-  // Poll API gần realtime
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
-        const res = await fetch("/api/kqxs/today", { cache: "no-store" });
+        const res = await fetch(apiPath, { cache: "no-store" });
         const json = (await res.json()) as Payload;
         if (!alive) return;
         if (!res.ok) throw new Error((json as { error?: string }).error || "Lỗi");
@@ -174,7 +195,7 @@ export default function LiveBoardClient() {
       alive = false;
       window.clearInterval(id);
     };
-  }, [syncReveal]);
+  }, [apiPath, syncReveal]);
 
   const stations = data?.stations || [];
   const map = revealRef.current;
@@ -189,8 +210,14 @@ export default function LiveBoardClient() {
       <header className="live-head">
         <h1>ĐẠI LÝ VÉ SỐ PHƯỚC DANH</h1>
         <p className="live-addr">137 LÊ LỢI, P. TRÀ VINH — VĨNH LONG</p>
-        <p className="live-region">XỔ SỐ MIỀN NAM</p>
+        <p className="live-region">{regionLabel}</p>
       </header>
+
+      {error ? (
+        <p className="live-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <div className="live-bar">
         <div className="live-date">
@@ -198,8 +225,7 @@ export default function LiveBoardClient() {
           <span>{(data?.date || "").slice(6) || "2026"}</span>
         </div>
         <div className="live-hotline">
-          ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI{" "}
-          <em>0919.494.566</em>
+          ĐỔI SỐ TRÚNG ĐẶC BIỆT TẬN NƠI <em>0919.494.566</em>
         </div>
       </div>
 
@@ -208,8 +234,8 @@ export default function LiveBoardClient() {
           <thead>
             <tr>
               <th className="col-giai">GIẢI</th>
-              {stations.map((s) => (
-                <th key={s.code || s.name}>
+              {stations.map((s, si) => (
+                <th key={`${s.code}-${s.name}-${si}`}>
                   <div>{shortName(s.name)}</div>
                   <small>{s.code}</small>
                 </th>
@@ -225,10 +251,11 @@ export default function LiveBoardClient() {
                 </td>
                 {stations.map((s, si) => {
                   const raw = s[row.key];
+                  const cellKeyId = `${s.code}-${s.name}-${si}-${row.key}`;
                   if (Array.isArray(raw)) {
                     const list = raw.length ? raw : [""];
                     return (
-                      <td key={s.code} className={row.jackpot ? "is-jackpot" : ""}>
+                      <td key={cellKeyId} className={row.jackpot ? "is-jackpot" : ""}>
                         <div className="live-stack">
                           {list.map((_, mi) => {
                             const r = getReveal(si, row.key, mi);
@@ -247,7 +274,7 @@ export default function LiveBoardClient() {
                   }
                   const r = getReveal(si, row.key);
                   return (
-                    <td key={s.code} className={row.jackpot ? "is-jackpot" : ""}>
+                    <td key={cellKeyId} className={row.jackpot ? "is-jackpot" : ""}>
                       <DigitCell target={r.target} shown={r.shown} red={row.red} />
                     </td>
                   );

@@ -328,7 +328,7 @@ code,
 
 .live-head h1 {
   margin: 0;
-  font-size: clamp(1.55rem, 4.2vw, 2.25rem);
+  font-size: clamp(1.7rem, 4.5vw, 2.45rem);
   font-weight: 900;
   color: #c8102e;
   font-family: "Be Vietnam Pro", sans-serif;
@@ -338,15 +338,24 @@ code,
 .live-addr {
   margin: 0.4rem 0 0;
   font-weight: 800;
-  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
 }
 
 .live-region {
   margin: 0.25rem 0 0;
   font-style: italic;
-  font-weight: 700;
-  color: #444;
-  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+  font-weight: 800;
+  color: #333;
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+}
+
+.live-error {
+  margin: 0 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #ffebee;
+  color: #b71c1c;
+  font-weight: 800;
+  text-align: center;
 }
 
 .live-bar {
@@ -387,14 +396,14 @@ code,
   padding: 0.55rem 0.65rem;
   font-weight: 800;
   color: #0d47a1;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
 }
 
 .live-hotline em {
   color: #c8102e;
   font-style: normal;
   font-weight: 900;
-  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  font-size: clamp(1.35rem, 2.9vw, 1.75rem);
 }
 
 .live-table-wrap {
@@ -421,13 +430,13 @@ code,
   background: #0d3b7a;
   color: #fff;
   font-weight: 900;
-  font-size: clamp(1rem, 2.2vw, 1.2rem);
-  padding: 0.55rem 0.3rem;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  padding: 0.6rem 0.3rem;
 }
 
 .live-table thead th small {
   display: block;
-  font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+  font-size: clamp(0.88rem, 1.8vw, 1.05rem);
   font-weight: 800;
   opacity: 0.95;
   margin-top: 0.1rem;
@@ -435,7 +444,7 @@ code,
 
 .live-table .col-giai {
   background: #f5ecd8;
-  width: 7.25rem;
+  width: 7.75rem;
   font-weight: 900;
   color: #111;
 }
@@ -447,13 +456,13 @@ code,
 
 .live-table .col-giai strong {
   display: block;
-  font-size: clamp(1.15rem, 2.4vw, 1.35rem);
+  font-size: clamp(1.25rem, 2.6vw, 1.5rem);
   font-weight: 900;
 }
 
 .live-table .col-giai small {
   display: block;
-  font-size: clamp(0.78rem, 1.5vw, 0.9rem);
+  font-size: clamp(0.85rem, 1.7vw, 1rem);
   color: #333;
   font-weight: 800;
 }
@@ -486,10 +495,10 @@ code,
   gap: 0.06rem;
   font-family: "Be Vietnam Pro", system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(1.45rem, 2.9vw, 1.85rem);
+  font-size: clamp(1.75rem, 3.4vw, 2.25rem);
   letter-spacing: 0.02em;
   line-height: 1.05;
-  min-height: 1.65rem;
+  min-height: 1.9rem;
   color: #111;
   -webkit-text-stroke: 0.2px currentColor;
 }
@@ -506,9 +515,9 @@ code,
 /* Vòng tròn quay THẬT (CSS animation) */
 .live-spin {
   display: inline-block;
-  width: 1.2rem;
-  height: 1.2rem;
-  border: 3px solid rgba(0, 0, 0, 0.14);
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 3.5px solid rgba(0, 0, 0, 0.14);
   border-top-color: #c8102e;
   border-radius: 50%;
   animation: live-spin-rotate 0.65s linear infinite;
@@ -538,14 +547,14 @@ code,
 
 @media (max-width: 640px) {
   .live-num {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
   .live-spin {
-    width: 1rem;
-    height: 1rem;
+    width: 1.15rem;
+    height: 1.15rem;
   }
   .live-table .col-giai {
-    width: 5.4rem;
+    width: 5.8rem;
   }
   .live-date {
     width: 5.25rem;
